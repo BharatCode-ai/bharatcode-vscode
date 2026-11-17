@@ -1,0 +1,82 @@
+name: Website sign-in candidate
+
+on:
+  push:
+    branches: [website-signin]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: oauth-candidate-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  candidate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      KILO_VERSION: 7.8.113
+      KILO_CLI_TARGETS: win32-x64,win32-arm64,linux-x64,linux-arm64,linux-x64-musl,linux-arm64-musl,darwin-x64,darwin-arm64
+      KILO_SKIP_BUNDLED_BWRAP: '1'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup-bun
+        with:
+          install-flags: "--os='*' --cpu='*'"
+      - name: Verify website sign-in and command wiring
+        working-directory: packages/kilo-vscode
+        run: >-
+          bun --config=/dev/null test --preload ./tests/setup/vscode-mock.ts
+          ./tests/unit/bharatcode-website-signin.test.ts
+          ./tests/unit/extension-arch.test.ts
+          ../opencode/test/plugin/bharatcode.test.ts
+      - name: Build bundled backends
+        working-directory: packages/opencode
+        run: bun script/build.ts --skip-install
+      - name: Build and check extension packages
+        working-directory: packages/kilo-vscode
+        run: |
+          export PATH="$PWD/node_modules/.bin:$PATH"
+          bun run check-types:webview
+          bun script/build.ts
+      - name: Audit exact candidate packages
+        run: |
+          python3 - <<'PY'
+          import hashlib, json, os, pathlib, zipfile
+          root = pathlib.Path('packages/kilo-vscode/out')
+          targets = {'win32-x64', 'win32-arm64', 'linux-x64', 'linux-arm64', 'alpine-x64', 'alpine-arm64', 'darwin-x64', 'darwin-arm64'}
+          rows = []
+          for file in sorted(root.glob('bharatcode-vscode-*.vsix')):
+              target = file.stem.removeprefix('bharatcode-vscode-')
+              assert target in targets, target
+              targets.remove(target)
+              with zipfile.ZipFile(file) as archive:
+                  names = archive.namelist()
+                  manifest = json.loads(archive.read('extension/package.json'))
+                  assert manifest['publisher'] == 'thenabbu' and manifest['name'] == 'bharatcode-vscode'
+                  assert manifest['version'] == os.environ['KILO_VERSION']
+                  assert not any(name.endswith('.map') for name in names)
+                  binary = 'extension/bin/bharatcode' + ('.exe' if target.startswith('win32-') else '')
+                  assert binary in names
+                  assert ('extension/bin/bharatcode' if binary.endswith('.exe') else binary + '.exe') not in names
+                  assert b'Sign in with BharatCode' in archive.read('extension/dist/extension.js')
+              rows.append({'name': file.name, 'size': file.stat().st_size, 'sha256': hashlib.file_digest(file.open('rb'), 'sha256').hexdigest()})
+          assert not targets, targets
+          receipt = {'source': os.environ['GITHUB_SHA'], 'run': os.environ['GITHUB_RUN_ID'], 'attempt': os.environ['GITHUB_RUN_ATTEMPT'], 'version': os.environ['KILO_VERSION'], 'publisher': 'thenabbu', 'name': 'bharatcode-vscode', 'files': rows}
+          (root / 'candidate.json').write_text(json.dumps(receipt, indent=2) + '\n')
+          (root / 'SHA256SUMS').write_text(''.join(row['sha256'] + '  ' + row['name'] + '\n' for row in rows))
+          print(json.dumps(receipt, indent=2))
+          PY
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: vscode-oauth-${{ github.sha }}
+          path: |
+            packages/kilo-vscode/out/*.vsix
+            packages/kilo-vscode/out/candidate.json
+            packages/kilo-vscode/out/SHA256SUMS
+          if-no-files-found: error
+          retention-days: 3
