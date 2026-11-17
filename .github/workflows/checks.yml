@@ -42,12 +42,14 @@ jobs:
             check-kilo-generated-artifacts \
             check-test-ci \
             check-opencode-promise-facades \
-            check-model-tool-network \
-            check-opencode-annotations; do
+            check-model-tool-network; do
             echo "::group::$g"
             bun "script/$g.ts"
             echo "::endgroup::"
           done
+          # This organization fork imports Navya's bc/main, not upstream's main branch.
+          # Keep checking every change since that immutable import; do not silently skip the guard.
+          bun script/check-opencode-annotations.ts --base 1e97696076bafea5ff4010627108ca50a162d9eb
           echo "::group::extract-source-links"
           bun script/extract-source-links.ts --check
           echo "::endgroup::"
