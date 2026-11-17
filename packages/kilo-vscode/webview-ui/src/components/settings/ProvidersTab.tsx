@@ -135,6 +135,10 @@ const ProvidersTab: Component = () => {
   }
 
   function connectProvider(item: Provider) {
+    if (item.id === "bharatcode") {
+      vscode.postMessage({ type: "connectBharatcode" })
+      return
+    }
     dialog.show(() => <ProviderConnectDialog providerID={item.id} />)
   }
 

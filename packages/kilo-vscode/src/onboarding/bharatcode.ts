@@ -1,192 +1,100 @@
+// Keep the existing command ID so older keybindings and the welcome view still work.
 import * as vscode from "vscode"
 import type { KiloClient } from "@kilocode/sdk/v2/client"
-import { fetchProviderData } from "../provider-actions"
 
-export const BHARATCODE_BASE_URL = "https://bharatcode.ai/api/model/v1"
 const SET_KEY_COMMAND = "kilo-code.new.setBharatcodeKey"
-const KEY_SET_FLAG = "bharatcode.apiKeySet"
+const CONNECTED_FLAG = "bharatcode.apiKeySet"
+const SIGN_IN = "Sign in with BharatCode"
 
-// GET /models on bharatcode.ai answers without auth, so it cannot verify a
-// key; a 1-token chat completion can (bad key -> 401 invalid_credentials).
-async function valid(key: string): Promise<boolean> {
-  try {
-    const res = await fetch(BHARATCODE_BASE_URL + "/chat/completions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: "Bearer " + key },
-      body: JSON.stringify({
-        model: "qwen-3.8-27b",
-        messages: [{ role: "user", content: "hi" }],
-        max_tokens: 1,
-      }),
-      signal: AbortSignal.timeout(20_000),
-    })
-    return res.ok
-  } catch (error) {
-    console.warn("[BharatCode] BharatCode key validation failed:", error)
-    return false
-  }
+function explain(error: unknown) {
+  const status = (error as { status?: number } | null)?.status
+  if (status === 409 || /already in use|EADDRINUSE/i.test(String((error as Error)?.message)))
+    return "Another BharatCode sign-in is using the callback port. Finish that sign-in and try again."
+  if (status === 429) return "Too many sign-in attempts. Wait a minute and try again."
+  return "Sign-in didn’t finish. Run BharatCode: Sign In to try again."
 }
 
-async function ask(): Promise<string | undefined> {
-  for (;;) {
-    const raw = await vscode.window.showInputBox({
-      title: "BharatCode API key",
-      prompt: "Paste your API key from https://bharatcode.ai - stored by the extension backend, never in settings.",
-      password: true,
-      ignoreFocusOut: true,
-      validateInput: (value) => (value.trim().length >= 8 ? undefined : "That does not look like an API key"),
-    })
-    if (!raw) return undefined
-    const key = raw.trim()
-    if (await valid(key)) return key
-    const retry = await vscode.window.showErrorMessage(
-      "BharatCode rejected that key (401). Copy the key from your BharatCode account and try again.",
-      "Retry",
-    )
-    if (retry !== "Retry") return undefined
-  }
-}
+export function start(ctx: vscode.ExtensionContext, client: () => Promise<KiloClient>) {
+  let pending: Promise<void> | undefined
+  const folder = () => vscode.workspace.workspaceFolders?.[0]?.uri.fsPath
 
-type AuthChoice = "oauth" | "api"
-
-/** First-run picker: OAuth (recommended) or a pasted API key — user's call. */
-async function choose(): Promise<AuthChoice | undefined> {
-  const picked = await vscode.window.showQuickPick(
-    [
-      {
-        label: "$(account) Sign in with BharatCode",
-        description: "Recommended - opens your browser, no API key needed",
-        choice: "oauth" as const,
-      },
-      {
-        label: "$(key) Use an API key",
-        description: "Paste a key from bharatcode.ai instead",
-        choice: "api" as const,
-      },
-    ],
-    {
-      title: "Connect BharatCode",
-      placeHolder: "BharatCode is the primary provider of this extension",
-      ignoreFocusOut: true,
-    },
-  )
-  return picked?.choice
-}
-
-/**
- * First-party OAuth (auth.bharatcode.ai) via the backend's bharatcode auth
- * method (PKCE + loopback callback). Mirrors the settings-page connect flow:
- * authorize -> open the browser -> block on the callback -> reset the backend
- * so the provider picks the session up immediately.
- *
- * Sign-in needs the CLI backend running, and the backend needs a workspace
- * root, so an empty window must be explained up front instead of surfacing
- * the connection layer's "No workspace folder open".
- */
-async function signInWithBrowser(client: () => Promise<KiloClient>): Promise<void> {
-  const c = await client()
-  const directory = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath
-  const scope = directory ? { directory } : {}
-  const { data: authorization } = await c.provider.oauth.authorize(
-    { providerID: "bharatcode", method: 0, ...scope },
-    { throwOnError: true },
-  )
-  if (!authorization?.url) throw new Error("BharatCode sign-in did not return a URL.")
-  const opened = await vscode.env.openExternal(vscode.Uri.parse(authorization.url))
-  if (!opened) throw new Error("Could not open the browser for BharatCode sign-in.")
-  await c.provider.oauth.callback({ providerID: "bharatcode", method: 0, ...scope }, { throwOnError: true })
-  await c.global.dispose().catch(() => {})
-}
-
-/**
- * First-run flow: nothing stored -> offer OAuth or API key -> run the picked
- * path -> auth (type oauth or api) lands in the backend store.
- */
-/** Human-readable next step for a failed sign-in, so a retry is informed. */
-function explain(error: unknown): string {
-  const raw = String((error as Error)?.message ?? error ?? "").trim()
-  const status = (error as { status?: number })?.status
-  if (status === 409 || /already in use|EADDRINUSE/i.test(raw))
-    return "Another BharatCode sign-in is already in progress (the CLI holds the callback port). Finish or cancel that one, then try again."
-  if (status === 401 || status === 403)
-    return "BharatCode rejected the sign-in. Make sure you are signed in at bharatcode.ai, then try again."
-  if (status === 429) return "Too many sign-in attempts. Wait a minute, then try again."
-  if (status && status >= 500)
-    return "BharatCode's sign-in service is temporarily unavailable. Try again in a moment, or use an API key instead."
-  if (/No workspace folder open/i.test(raw))
-    return "Open a folder in VS Code first (File > Open Folder), then run BharatCode: Set API Key."
-  return raw || "BharatCode sign-in failed. Try again, or use an API key instead."
-}
-
-/**
- * The flag is only a fast path: credentials can disappear underneath it (a
- * sign-out, a wiped credential store, or an auth-server cutover that
- * invalidated every stored session). Ask the backend before trusting it, so a
- * user whose stored login no longer exists is offered the picker again
- * instead of being left with a silent extension.
- */
-async function hasStoredCredentials(client: () => Promise<KiloClient>): Promise<boolean> {
-  try {
-    const c = await client()
-    const directory = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath
-    if (!directory) return false
-    // fetchProviderData returns { response, authMethods, authStates, ... };
-    // the provider list (and its `connected` array) lives under .response.
-    const { response } = await fetchProviderData(c, directory)
-    return (response.connected ?? []).includes("bharatcode")
-  } catch (error) {
-    console.warn("[BharatCode] Could not read stored BharatCode credentials:", error)
-    // Unknown state: trust the flag rather than nagging a connected user.
-    return true
-  }
-}
-
-export async function ensureKey(ctx: vscode.ExtensionContext, client: () => Promise<KiloClient>): Promise<void> {
-  if (ctx.globalState.get<boolean>(KEY_SET_FLAG) && (await hasStoredCredentials(client))) return
-  for (;;) {
-    const choice = await choose()
-    if (!choice) return
-    try {
-      if (choice === "oauth") {
-        await signInWithBrowser(client)
-      } else {
-        const key = await ask()
-        if (!key) continue
-        const c = await client()
-        await c.auth.set({ providerID: "bharatcode", auth: { type: "api", key } }, { throwOnError: true })
-      }
-      await ctx.globalState.update(KEY_SET_FLAG, true)
-      // The panel is the onboarding surface (a centre-top toast is easy to
-      // miss), so surface it rather than reporting into the void.
-      void vscode.commands.executeCommand("kilo-code.SidebarProvider.focus")
-      void vscode.window.showInformationMessage("BharatCode connected.")
+  async function signIn() {
+    const directory = folder()
+    if (!directory) {
+      void vscode.window.showInformationMessage("Open a project folder, then run BharatCode: Sign In.")
       return
-    } catch (error) {
-      console.warn("[BharatCode] BharatCode sign-in failed:", error)
-      const retry = await vscode.window.showErrorMessage("BharatCode sign-in failed: " + explain(error), "Try again")
-      if (retry !== "Try again") return
     }
+    if (vscode.env.remoteName) {
+      // The registered OAuth callback is a loopback URL; never replace it with a public tunnel.
+      const forwarded = await vscode.env.asExternalUri(vscode.Uri.parse("http://127.0.0.1:27182/callback"))
+      const local = new URL(forwarded.toString())
+      if (
+        local.protocol !== "http:" ||
+        !["localhost", "127.0.0.1"].includes(local.hostname) ||
+        local.port !== "27182"
+      ) {
+        void vscode.window.showErrorMessage(
+          "Forward port 27182 to local port 27182 in VS Code’s Ports view, or sign in from a local project window.",
+        )
+        return
+      }
+    }
+    const c = await client()
+    const params = { providerID: "bharatcode", method: 0, directory }
+    const { data } = await c.provider.oauth.authorize(params, { throwOnError: true })
+    const url = data?.url && new URL(data.url)
+    if (
+      !url ||
+      url.origin !== "https://auth.bharatcode.ai" ||
+      url.pathname !== "/auth/v1/oauth/authorize" ||
+      url.username ||
+      url.password ||
+      url.hash
+    )
+      throw new Error("Unexpected authorization URL")
+    if (!(await vscode.env.openExternal(vscode.Uri.parse(url.href)))) throw new Error("Browser unavailable")
+    await c.provider.oauth.callback(params, { throwOnError: true })
+    await ctx.globalState.update(CONNECTED_FLAG, true).then(undefined, () => {})
+    await c.global.dispose().catch(() => {})
+    void vscode.commands.executeCommand("kilo-code.SidebarProvider.focus")
+    void vscode.window.showInformationMessage("BharatCode connected.")
   }
-}
 
-/** Registers the palette command and kicks off the first-run prompt. */
-export function start(ctx: vscode.ExtensionContext, client: () => Promise<KiloClient>): void {
-  ctx.subscriptions.push(
-    vscode.commands.registerCommand(SET_KEY_COMMAND, async () => {
-      await ctx.globalState.update(KEY_SET_FLAG, false)
-      await ensureKey(ctx, client)
-    }),
-  )
-  // The backend needs a workspace root, so an empty window cannot sign in.
-  // Prompt once a folder exists instead of failing on startup.
-  const hasFolder = () => (vscode.workspace.workspaceFolders?.length ?? 0) > 0
-  if (hasFolder()) {
-    void ensureKey(ctx, client).catch((error) => console.warn("[BharatCode] BharatCode onboarding:", error))
-  } else {
+  function connect() {
+    // A click from the sidebar and the command palette share one PKCE exchange.
+    return (pending ??= signIn()
+      .catch((error: unknown) => {
+        void vscode.window.showErrorMessage(explain(error))
+      })
+      .finally(() => {
+        pending = undefined
+      }))
+  }
+
+  async function welcome() {
+    const directory = folder()
+    if (!directory) return
+    try {
+      const c = await client()
+      const { data } = await c.provider.list({ directory }, { throwOnError: true })
+      if (data.connected.includes("bharatcode")) return
+    } catch {
+      if (ctx.globalState.get<boolean>(CONNECTED_FLAG)) return
+    }
+    // Opening an editor must not launch a browser without a user gesture.
+    if (
+      (await vscode.window.showInformationMessage("Connect BharatCode to start your first chat.", SIGN_IN)) === SIGN_IN
+    )
+      await connect()
+  }
+
+  ctx.subscriptions.push(vscode.commands.registerCommand(SET_KEY_COMMAND, connect))
+  if (folder()) void welcome()
+  else {
     const listener = vscode.workspace.onDidChangeWorkspaceFolders(() => {
-      if (!hasFolder()) return
+      if (!folder()) return
       listener.dispose()
-      void ensureKey(ctx, client).catch((error) => console.warn("[BharatCode] BharatCode onboarding:", error))
+      void welcome()
     })
     ctx.subscriptions.push(listener)
   }

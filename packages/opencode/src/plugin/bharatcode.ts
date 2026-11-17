@@ -1,7 +1,7 @@
 // kilocode_change - new file
 import type { Hooks, PluginInput } from "@kilocode/plugin"
 import type { Auth } from "@kilocode/sdk/v2"
-import { OAUTH_DUMMY_KEY } from "../auth"
+import { OAUTH_DUMMY_KEY } from "../auth/placeholder"
 import { createServer } from "http"
 
 // GoTrue-compatible OAuth 2.0, authorization code + PKCE (S256) — the same
@@ -31,6 +31,7 @@ export interface BharatcodeAuthPluginOptions {
   issuer?: string
   clientId?: string
   redirectUri?: string
+  modelFetch?: (input: RequestInfo | URL, init: RequestInit) => Promise<Response>
 }
 
 type OauthAuth = Extract<Auth, { type: "oauth" }>
@@ -87,6 +88,7 @@ export function buildAuthorizeUrl(pkce: PkceCodes, state: string, options: Bhara
 async function postToken(params: Record<string, string>, options: BharatcodeAuthPluginOptions): Promise<TokenResponse> {
   const response = await fetch(`${issuerUrl(options)}/oauth/token`, {
     method: "POST",
+    redirect: "error",
     headers: { "content-type": "application/x-www-form-urlencoded", accept: "application/json" },
     body: new URLSearchParams(params),
   })
@@ -105,6 +107,7 @@ async function fetchAccountId(access: string, options: BharatcodeAuthPluginOptio
   try {
     const response = await fetch(`${issuerUrl(options)}/oauth/userinfo`, {
       headers: { [AUTH_HEADER]: bearer(access) },
+      redirect: "error",
     })
     if (!response.ok) return undefined
     const body = await response.json().catch(() => ({}) as { sub?: unknown })
@@ -209,6 +212,7 @@ function waitForCallback(state: string, timeoutMs = CALLBACK_TIMEOUT_MS): Promis
   return new Promise<string>((resolvePromise, rejectPromise) => {
     const timer = setTimeout(() => {
       pendingCallbacks.delete(state)
+      if (!pendingCallbacks.size) stopOAuthServer()
       rejectPromise(new Error("BharatCode sign-in timed out. Start sign-in again."))
     }, timeoutMs)
     pendingCallbacks.set(state, { resolve: resolvePromise, reject: rejectPromise, timer })
@@ -231,42 +235,46 @@ export async function BharatcodeAuthPlugin(
 
         // Single-flight refresh: concurrent requests share one HTTP call so a
         // rotating refresh_token is never replayed twice.
-        let refreshPromise: Promise<Refreshed> | undefined
+        const refreshing = new Map<string, Promise<Refreshed>>()
 
         const refreshAccess = (current: OauthAuth): Promise<Refreshed> => {
-          if (!refreshPromise) {
-            const refreshToken = current.refresh
-            refreshPromise = postToken(
-              { grant_type: "refresh_token", refresh_token: refreshToken, client_id: clientId },
-              options,
-            )
-              .then(async (tokens): Promise<Refreshed> => {
-                const next: Refreshed = {
-                  access: tokens.access_token,
-                  refresh: tokens.refresh_token || refreshToken,
-                  expires: Date.now() + (tokens.expires_in ?? 3600) * 1000,
-                }
-                // Best-effort persist: the in-memory result still serves this
-                // request; a stale copy on disk just forces the next refresh.
-                await input.client.auth
-                  .set({
-                    path: { id: "bharatcode" },
-                    body: {
-                      type: "oauth",
-                      access: next.access,
-                      refresh: next.refresh,
-                      expires: next.expires,
-                      ...(current.accountId ? { accountId: current.accountId } : {}),
-                    },
-                  })
-                  .catch(() => {})
-                return next
-              })
-              .finally(() => {
-                refreshPromise = undefined
-              })
-          }
-          return refreshPromise
+          const refreshToken = current.refresh
+          const existing = refreshing.get(refreshToken)
+          if (existing) return existing
+          const pending = postToken(
+            { grant_type: "refresh_token", refresh_token: refreshToken, client_id: clientId },
+            options,
+          )
+            .then(async (tokens): Promise<Refreshed> => {
+              const next: Refreshed = {
+                access: tokens.access_token,
+                refresh: tokens.refresh_token || refreshToken,
+                expires: Date.now() + (tokens.expires_in ?? 3600) * 1000,
+              }
+              const stored = await getAuth()
+              if (stored.type !== "oauth" || stored.refresh !== refreshToken)
+                throw new Error("BharatCode session changed")
+              // Best-effort persist: the in-memory result still serves this
+              // request; a stale copy on disk just forces the next refresh.
+              await input.client.auth
+                .set({
+                  path: { id: "bharatcode" },
+                  body: {
+                    type: "oauth",
+                    access: next.access,
+                    refresh: next.refresh,
+                    expires: next.expires,
+                    ...(current.accountId ? { accountId: current.accountId } : {}),
+                  },
+                })
+                .catch(() => {})
+              return next
+            })
+            .finally(() => {
+              refreshing.delete(refreshToken)
+            })
+          refreshing.set(refreshToken, pending)
+          return pending
         }
 
         const tokenFor = async (current: OauthAuth, force: boolean): Promise<string> => {
@@ -285,6 +293,15 @@ export async function BharatcodeAuthPlugin(
             // request through so the store's own key reaches the API intact.
             if (current.type !== "oauth") return fetch(requestInput, init)
 
+            const destination = new URL(requestInput instanceof Request ? requestInput.url : requestInput.toString())
+            if (
+              destination.origin !== "https://bharatcode.ai" ||
+              !destination.pathname.startsWith("/api/model/v1/") ||
+              destination.username ||
+              destination.password
+            )
+              throw new Error("Unapproved BharatCode model endpoint")
+            const send = options.modelFetch ?? fetch
             const headers = new Headers(requestInput instanceof Request ? requestInput.headers : undefined)
             if (init?.headers) {
               const entries =
@@ -298,20 +315,23 @@ export async function BharatcodeAuthPlugin(
               }
             }
             headers.set(AUTH_HEADER, bearer(await tokenFor(current, false)))
-            let response = await fetch(requestInput, { ...init, headers })
+            let response = await send(requestInput, { ...init, headers, redirect: "error" })
 
             // A revoked-but-unexpired token still 401s: force one refresh and
             // replay — only when the body can be re-sent as-is.
             const replayable =
-              init?.body === undefined || typeof init.body === "string" || init.body instanceof URLSearchParams
+              !(requestInput instanceof Request && requestInput.body && init?.body === undefined) &&
+              (init?.body === undefined || typeof init.body === "string" || init.body instanceof URLSearchParams)
             if (response.status === 401 && replayable) {
-              try {
-                await response.body?.cancel()
-              } catch {}
+              const previous = current
               current = await getAuth()
-              if (current.type === "oauth") {
+              if (
+                current.type === "oauth" &&
+                (previous.accountId ? previous.accountId === current.accountId : previous.refresh === current.refresh)
+              ) {
+                await response.body?.cancel().catch(() => {})
                 headers.set(AUTH_HEADER, bearer(await tokenFor(current, true)))
-                response = await fetch(requestInput, { ...init, headers })
+                response = await send(requestInput, { ...init, headers, redirect: "error" })
               }
             }
             return response
@@ -333,7 +353,7 @@ export async function BharatcodeAuthPlugin(
             void callbackPromise.catch(() => {})
             return {
               url,
-              instructions: "Complete sign-in in your browser. This window will close automatically.",
+              instructions: "Approve access on the BharatCode website, then return to VS Code.",
               method: "auto" as const,
               callback: async () => {
                 try {
@@ -360,15 +380,11 @@ export async function BharatcodeAuthPlugin(
                 } catch {
                   return { type: "failed" as const }
                 } finally {
-                  stopOAuthServer()
+                  if (!pendingCallbacks.size) stopOAuthServer()
                 }
               },
             }
           },
-        },
-        {
-          type: "api",
-          label: "Use an API key",
         },
       ],
     },

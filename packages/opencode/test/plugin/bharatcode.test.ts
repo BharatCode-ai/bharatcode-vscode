@@ -1,7 +1,16 @@
 // kilocode_change - new file
 import { describe, expect, test } from "bun:test"
 import { BharatcodeAuthPlugin, buildAuthorizeUrl, generatePKCE } from "../../src/plugin/bharatcode"
-import { OAUTH_DUMMY_KEY } from "../../src/auth"
+import { OAUTH_DUMMY_KEY } from "../../src/auth/placeholder"
+
+const MODEL_URL = "https://bharatcode.ai/api/model/v1/chat/completions"
+function fixtureTransport(url: () => URL) {
+  return async (destination: RequestInfo | URL, init: RequestInit) => {
+    expect(String(destination)).toBe(MODEL_URL)
+    expect(init.redirect).toBe("error")
+    return fetch(url(), init)
+  }
+}
 
 const TEST_REDIRECT_PORT = 39771
 const TEST_REDIRECT_URI = `http://127.0.0.1:${TEST_REDIRECT_PORT}/callback`
@@ -88,7 +97,7 @@ describe("plugin.bharatcode", () => {
       const input = makeInput()
       const hooks = await BharatcodeAuthPlugin(input as any, { issuer, redirectUri: TEST_REDIRECT_URI })
       const methods = hooks.auth!.methods
-      expect(methods.map((m) => m.type)).toEqual(["oauth", "api"])
+      expect(methods.map((m) => m.type)).toEqual(["oauth"])
 
       const oauth = methods[0] as Extract<(typeof methods)[number], { type: "oauth" }>
       const authorization = await oauth.authorize()
@@ -154,7 +163,11 @@ describe("plugin.bharatcode", () => {
     })
     try {
       const input = makeInput()
-      const hooks = await BharatcodeAuthPlugin(input as any, { issuer, redirectUri: TEST_REDIRECT_URI })
+      const hooks = await BharatcodeAuthPlugin(input as any, {
+        issuer,
+        redirectUri: TEST_REDIRECT_URI,
+        modelFetch: fixtureTransport(() => apiServer.url),
+      })
       const loader = hooks.auth!.loader!
       const stale = {
         type: "oauth",
@@ -176,7 +189,9 @@ describe("plugin.bharatcode", () => {
         },
       })
       try {
-        const response = await (options.fetch as Function)(`${apiServer.url}chat`, { headers: {} })
+        await expect((options.fetch as Function)("https://example.invalid/v1/chat")).rejects.toThrow("Unapproved")
+        expect(seen).toHaveLength(0)
+        const response = await (options.fetch as Function)(MODEL_URL, { headers: {} })
         expect(response.status).toBe(200)
         expect(seen[0]).toBe("Bearer access-new")
       } finally {
@@ -219,7 +234,11 @@ describe("plugin.bharatcode", () => {
     })
     try {
       const input = makeInput()
-      const hooks = await BharatcodeAuthPlugin(input as any, { issuer, redirectUri: TEST_REDIRECT_URI })
+      const hooks = await BharatcodeAuthPlugin(input as any, {
+        issuer,
+        redirectUri: TEST_REDIRECT_URI,
+        modelFetch: fixtureTransport(() => apiServer.url),
+      })
       const loader = hooks.auth!.loader!
       const fresh = {
         type: "oauth",
@@ -228,7 +247,7 @@ describe("plugin.bharatcode", () => {
         expires: Date.now() + 3_600_000,
       } as any
       const options = await loader(() => Promise.resolve(fresh), {} as any)
-      const response = await (options.fetch as Function)(`${apiServer.url}chat/completions`, {
+      const response = await (options.fetch as Function)(MODEL_URL, {
         method: "POST",
         body: JSON.stringify({ model: "m" }),
         headers: { "content-type": "application/json" },

@@ -96,7 +96,7 @@ export async function activate(context: vscode.ExtensionContext) {
     (dir): Promise<void> => browserAutomationService.ready(dir),
   )
 
-  // BharatCode first-run onboarding: prompt for the API key once (until stored).
+  // Invite disconnected users to sign in on the BharatCode website.
   startBharatcodeOnboarding(context, () => connectionService.getClientAsync())
 
   // One MCP OAuth sign-in service for the whole extension (sidebar, Kilo tabs, Settings, Marketplace).

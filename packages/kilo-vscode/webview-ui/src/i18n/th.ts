@@ -752,10 +752,9 @@ export const dict = {
 
   "session.messages.welcome":
     "BharatCode รันเอเยนต์ในแผงนี้ด้วยโมเดล BharatCode ของคุณ สั่งให้สร้างฟีเจอร์ แก้บั๊ก หรืออธิบายโค้ดเบสของคุณได้เลย",
-  "session.messages.connect": "เชื่อมต่อ BharatCode",
+  "session.messages.connect": "ลงชื่อเข้าใช้ด้วย BharatCode",
   "session.onboarding.title": "ตั้งค่า BharatCode",
-  "session.onboarding.body":
-    "ลงชื่อเข้าใช้ผ่านเบราว์เซอร์หรือวางคีย์ API ก็ได้ทั้งคู่ บัญช���ถูกเก็บโดยส่วนขยาย ไม่ได้เก็บในตั้งค่า",
+  "session.onboarding.body": "อนุญาตการเข้าถึงบนเว็บไซต์ BharatCode แล้วกลับไปที่ VS Code",
   "session.onboarding.hint": "BharatCode คือเอเยนต์ในแผงนี้ เชื่อมต่อครั้งเดียวแล้วเริ่มได้เลย",
 
   "session.workspaceScope.description": "แชต BharatCode ใช้เฉพาะ “{{folder}}” ซึ่งเป็นโฟลเดอร์แรกในพื้นที่ทำงานนี้",

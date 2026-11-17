@@ -758,10 +758,9 @@ export const dict = {
 
   "session.messages.welcome":
     "BharatCode kører en agent i dette panel på dine BharatCode-modeller. Bed den om at bygge funktioner, rette fejl eller forklare din kodebase.",
-  "session.messages.connect": "Forbind BharatCode",
+  "session.messages.connect": "Log ind med BharatCode",
   "session.onboarding.title": "Opsæt BharatCode",
-  "session.onboarding.body":
-    "Log ind i browseren eller indsæt en API-nøgle - begge virker. Kontoen gemmes af udvidelsen, aldrig i indstillingerne.",
+  "session.onboarding.body": "Godkend adgangen på BharatCodes websted, og vend tilbage til VS Code.",
   "session.onboarding.hint": "BharatCode er agenten i dette panel. Forbind den én gang og begynd.",
   "session.workspaceScope.description":
     "BharatCode-chatten bruger kun “{{folder}}”, den første mappe i dette arbejdsområde.",

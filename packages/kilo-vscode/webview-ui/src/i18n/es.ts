@@ -767,10 +767,9 @@ export const dict = {
 
   "session.messages.welcome":
     "BharatCode ejecuta un agente en este panel, impulsado por tus modelos BharatCode. Pídele que cree funciones, corrija errores o explique tu código.",
-  "session.messages.connect": "Conectar BharatCode",
+  "session.messages.connect": "Iniciar sesión con BharatCode",
   "session.onboarding.title": "Configurar BharatCode",
-  "session.onboarding.body":
-    "Inicia sesión en el navegador o pega una clave de API: ambos funcionan. La cuenta la guarda la extensión, nunca los ajustes.",
+  "session.onboarding.body": "Autoriza el acceso en el sitio de BharatCode y vuelve a VS Code.",
   "session.onboarding.hint": "BharatCode es el agente de este panel. Conéctalo una vez y empieza.",
   "session.workspaceScope.description":
     "El chat de BharatCode solo usa «{{folder}}», la primera carpeta de este espacio de trabajo.",

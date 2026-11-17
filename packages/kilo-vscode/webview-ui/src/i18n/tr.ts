@@ -748,10 +748,9 @@ export const dict = {
 
   "session.messages.welcome":
     "BharatCode bu panelde BharatCode modellerinizle bir ajan çalıştırır. Özellik geliştirmesini, hata düzeltmesini veya kod tabanınızı açıklamasını isteyin.",
-  "session.messages.connect": "BharatCode'a bağlan",
+  "session.messages.connect": "BharatCode ile giriş yap",
   "session.onboarding.title": "BharatCode kurulumu",
-  "session.onboarding.body":
-    "Tarayıcıdan giriş yapın veya bir API anahtarı yapıştırın - ikisi de olur. Hesap ayarlarda değil, uzantıda saklanır.",
+  "session.onboarding.body": "BharatCode sitesinde erişimi onaylayıp VS Code’a dönün.",
   "session.onboarding.hint": "BharatCode bu paneldeki ajandır. Bir kez bağlanın ve başlayın.",
   "session.workspaceScope.description":
     "BharatCode sohbeti yalnızca bu çalışma alanındaki ilk klasör olan “{{folder}}” klasörünü kullanır.",

@@ -8,6 +8,7 @@ import type { ProviderFailure } from "@kilocode/sdk/v2/client"
 import { useConfig } from "../../context/config"
 import { useLanguage } from "../../context/language"
 import { useProvider } from "../../context/provider"
+import { useVSCode } from "../../context/vscode"
 import type { Provider } from "../../types/messages"
 import ProviderConnectDialog from "./ProviderConnectDialog"
 import { CUSTOM_PROVIDER_ID, isPopularProvider, providerIcon, popularProviderIndex } from "./provider-catalog"
@@ -23,6 +24,7 @@ type ProviderItem = {
 
 const ProviderSelectDialog = () => {
   const dialog = useDialog()
+  const vscode = useVSCode()
   const { config } = useConfig()
   const provider = useProvider()
   const language = useLanguage()
@@ -50,6 +52,11 @@ const ProviderSelectDialog = () => {
   })
 
   function open(item: ProviderItem) {
+    if (item.id === "bharatcode") {
+      dialog.close()
+      vscode.postMessage({ type: "connectBharatcode" })
+      return
+    }
     if (item.id === CUSTOM_PROVIDER_ID) {
       dialog.show(() => <CustomProviderDialog onBack={() => dialog.show(() => <ProviderSelectDialog />)} />)
       return

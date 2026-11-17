@@ -38,17 +38,9 @@ VS Code **1.105.1** or newer. Chromebook, Linux, macOS and Windows all get their
 
 **2. Open a folder.** `File → Open Folder`. Your project is what the agent reads and edits.
 
-**3. Sign in.** BharatCode greets you on first launch and offers both ways in:
+**3. Select Sign in with BharatCode.** Your browser opens the BharatCode website. Sign in if needed, approve access, then return to VS Code. No API key or model request is needed for setup.
 
-| | **Sign in with BharatCode** | **API key** |
-|---|---|---|
-| **Best for** | Nearly everyone | Scripts, shared machines, CI |
-| **How** | A browser tab opens; click approve; done | Paste a key from your bharatcode.ai account |
-| **Typing** | None | One paste |
-
-Both are first-class paths and both work on first run — pick either. Your credential is stored by the extension backend, **never** in `settings.json`, so it stays out of your repo and your dotfiles.
-
-Missed the prompt? `BharatCode: Connect Account` in the Command Palette brings it back.
+You can also run `BharatCode: Sign In` from the Command Palette. Already connected? Your existing connection keeps working.
 
 That is the entire setup. No base URL, no provider JSON, no model list, no CLI.
 
@@ -78,7 +70,7 @@ Your BharatCode account comes with two models, and the extension wires both up f
 
 | Model | Context | Best at |
 |---|---|---|
-| `qwen-3.8-27b` | 262k | Everyday edits and fast iteration |
+| `glm-5.3-flash` | 262k | Everyday edits and fast iteration |
 | `deepseek-v4.1-flash` | 1M | Whole-repo reasoning and long sessions |
 
 Both come from one OpenAI-compatible endpoint at `https://bharatcode.ai/api/model/v1`, and the list is read live from it.
@@ -136,14 +128,14 @@ Install the extension, sign in, and the agent is running — because the extensi
 <details>
 <summary>Where does this extension come from?</summary>
 
-It is a fork of [Kilo Code](https://github.com/Kilo-Org/kilocode), itself a fork of [OpenCode](https://github.com/anomalyco/opencode). Those projects and their contributors built the agent this package runs, and the credit is theirs — MIT licensed, with attribution preserved in [LICENSE](LICENSE) and in the `kilocode_change` markers throughout the source. This fork brings that agent to the BharatCode provider, rebrands it, and reconfigures the provider layer so bharatcode.ai is wired in from the start. We build on their work; we do not claim it.
+This organization repository continues [Navya’s BharatCode extension](https://github.com/thenabbu/BharatCode-VSCode-Extension). It is a fork of [Kilo Code](https://github.com/Kilo-Org/kilocode), itself a fork of [OpenCode](https://github.com/anomalyco/opencode). Those projects and their contributors built the agent this package runs, and the credit is theirs — MIT licensed, with attribution preserved in [LICENSE](LICENSE) and in the `kilocode_change` markers throughout the source. This fork brings that agent to the BharatCode provider, rebrands it, and reconfigures the provider layer so bharatcode.ai is wired in from the start. We build on their work; we do not claim it.
 
 </details>
 
 <details>
 <summary>Do I need a key if I sign in with my browser?</summary>
 
-One or the other is enough. Browser sign-in stores a session; a pasted key stores a key. Both land in the extension backend's auth store and both go only to the provider you connected.
+No. Approve VS Code on the BharatCode website. The extension backend stores the session; you don’t need to create or paste a key.
 
 </details>
 

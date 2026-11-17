@@ -8,6 +8,7 @@ import { Button } from "@kilocode/kilo-ui/button"
 import type { AssistantMessage } from "@kilocode/sdk/v2"
 import { useLanguage } from "../../context/language"
 import { useProvider } from "../../context/provider"
+import { useVSCode } from "../../context/vscode"
 import { unwrapError, parseAssistantError, parseProviderAuthError } from "../../utils/errorUtils"
 import ProviderConnectDialog from "../settings/ProviderConnectDialog"
 
@@ -19,6 +20,7 @@ export interface ErrorDisplayProps {
 export const ErrorDisplay: Component<ErrorDisplayProps> = (props) => {
   const { t } = useLanguage()
   const dialog = useDialog()
+  const vscode = useVSCode()
   const provider = useProvider()
   const parsed = createMemo(() => parseAssistantError(props.error))
   const auth = createMemo(() => parseProviderAuthError(props.error))
@@ -51,6 +53,10 @@ export const ErrorDisplay: Component<ErrorDisplayProps> = (props) => {
   function connectProvider() {
     const err = auth()
     if (!err) return
+    if (err.providerID === "bharatcode") {
+      vscode.postMessage({ type: "connectBharatcode" })
+      return
+    }
     dialog.show(() => <ProviderConnectDialog providerID={err.providerID} oauthOnly={oauth()} />)
   }
 

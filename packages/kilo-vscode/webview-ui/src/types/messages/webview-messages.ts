@@ -289,7 +289,7 @@ export interface OpenProfilePanelRequest {
   type: "openProfilePanel"
 }
 
-/** Opens the BharatCode connect picker (OAuth or API key) from the chat welcome screen. */
+/** Starts website sign-in from the welcome screen or provider settings. */
 export interface ConnectBharatcodeRequest {
   type: "connectBharatcode"
 }

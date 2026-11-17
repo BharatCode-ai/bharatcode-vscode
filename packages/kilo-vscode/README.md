@@ -18,17 +18,9 @@
 
 **2. Open a folder.** `File → Open Folder`. Your project is what the agent reads and edits.
 
-**3. Sign in.** BharatCode greets you on first launch with **both** ways in:
+**3. Select Sign in with BharatCode.** Your browser opens the BharatCode website. Sign in if needed, approve access, then return to VS Code. No API key or model request is needed for setup.
 
-| | **Sign in with BharatCode** | **API key** |
-|---|---|---|
-| **Best for** | Nearly everyone | Scripts, shared machines, CI |
-| **How** | A browser tab opens; click approve; done | Paste a key from your bharatcode.ai account |
-| **Typing** | None | One paste |
-
-Either path works on first run. Your credential stays in the extension backend, out of `settings.json` and out of your repo.
-
-Missed the prompt? `BharatCode: Connect Account` brings it back.
+You can also run `BharatCode: Sign In` from the Command Palette. Already connected? Your existing connection keeps working.
 
 That is the entire setup: the base URL, provider, endpoint and model list all come preconfigured.
 
@@ -58,7 +50,7 @@ Two models ship with your BharatCode account, and the extension wires both up fo
 
 | Model | Context | Best at |
 |---|---|---|
-| `qwen-3.8-27b` | 262k | Everyday edits and fast iteration |
+| `glm-5.3-flash` | 262k | Everyday edits and fast iteration |
 | `deepseek-v4.1-flash` | 1M | Whole-repo reasoning and long sessions |
 
 Both come from one OpenAI-compatible endpoint at `https://bharatcode.ai/api/model/v1`, and the list is read live from it.
@@ -71,7 +63,7 @@ Both come from one OpenAI-compatible endpoint at `https://bharatcode.ai/api/mode
 
 A fork of [Kilo Code](https://github.com/Kilo-Org/kilocode), itself a fork of [OpenCode](https://github.com/anomalyco/opencode). Those projects and their contributors built the agent this package runs, and the credit is theirs — MIT licensed, attribution preserved in the licence. This fork brings that agent to the BharatCode provider and reconfigures the provider layer so bharatcode.ai is wired in from the start.
 
-Read-only questions, bug reports and feature ideas: [GitHub Issues](https://github.com/thenabbu/BharatCode-VSCode-Extension/issues). Full docs, contribution guide and privacy statement are in the [repository](https://github.com/thenabbu/BharatCode-VSCode-Extension).
+Read-only questions, bug reports and feature ideas: [GitHub Issues](https://github.com/BharatCode-ai/bharatcode-vscode/issues). Full docs, contribution guide and privacy statement are in the [repository](https://github.com/BharatCode-ai/bharatcode-vscode).
 
 ## License
 
