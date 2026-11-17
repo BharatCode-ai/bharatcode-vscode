@@ -4,9 +4,9 @@
 
 <br>
 
-<a href="https://marketplace.visualstudio.com/items?itemName=thenabbu.bharatcode-vscode"><img src="https://vsmarketplacebadges.dev/version-short/thenabbu.bharatcode-vscode.svg" alt="Marketplace version"></a>
-<a href="https://github.com/thenabbu/BharatCode-VSCode-Extension/releases/latest"><img src="https://img.shields.io/github/v/release/thenabbu/BharatCode-VSCode-Extension?label=release&amp;color=038fac&amp;labelColor=1c1410&amp;exclude_prerelease=true&amp;sort=semver" alt="Latest release"></a>
-<a href="https://github.com/thenabbu/BharatCode-VSCode-Extension/actions/workflows/checks.yml"><img src="https://img.shields.io/github/actions/workflow/status/thenabbu/BharatCode-VSCode-Extension/checks.yml?branch=bc/main&amp;label=checks&amp;color=e1ba00&amp;labelColor=1c1410" alt="CI status"></a>
+<a href="https://marketplace.visualstudio.com/items?itemName=bharatcode.bharatcode-vscode"><img src="https://vsmarketplacebadges.dev/version-short/bharatcode.bharatcode-vscode.svg" alt="Marketplace version"></a>
+<a href="https://github.com/BharatCode-ai/bharatcode-vscode/releases/latest"><img src="https://img.shields.io/github/v/release/BharatCode-ai/bharatcode-vscode?label=release&amp;color=038fac&amp;labelColor=1c1410&amp;exclude_prerelease=true&amp;sort=semver" alt="Latest release"></a>
+<a href="https://github.com/BharatCode-ai/bharatcode-vscode/actions/workflows/checks.yml"><img src="https://img.shields.io/github/actions/workflow/status/BharatCode-ai/bharatcode-vscode/checks.yml?branch=bc/main&amp;label=checks&amp;color=e1ba00&amp;labelColor=1c1410" alt="CI status"></a>
 <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-5e5652?labelColor=1c1410" alt="MIT licensed"></a>
 <a href="https://bharatcode.ai"><img src="https://img.shields.io/badge/provider-bharatcode.ai-ff6a35?labelColor=1c1410" alt="Provider: bharatcode.ai"></a>
 
@@ -20,12 +20,12 @@
 
 ---
 
-**[Install from the VS Code Marketplace »](https://marketplace.visualstudio.com/items?itemName=thenabbu.bharatcode-vscode)**
+**[Install from the VS Code Marketplace »](https://marketplace.visualstudio.com/items?itemName=bharatcode.bharatcode-vscode)**
 
 *Or press `Ctrl+P` / `⌘P` and paste:*
 
 ```bash
-ext install thenabbu.bharatcode-vscode
+ext install bharatcode.bharatcode-vscode
 ```
 
 VS Code **1.105.1** or newer. Chromebook, Linux, macOS and Windows all get their own build.
@@ -86,7 +86,7 @@ Both come from one OpenAI-compatible endpoint at `https://bharatcode.ai/api/mode
 
 <br>
 
-Grab the file for your system from [Releases](https://github.com/thenabbu/BharatCode-VSCode-Extension/releases/latest), then run `Extensions: Install from VSIX...` from the Command Palette:
+Grab the file for your system from [Releases](https://github.com/BharatCode-ai/bharatcode-vscode/releases/latest), then run `Extensions: Install from VSIX...` from the Command Palette:
 
 ```bash
 code --install-extension bharatcode-vscode-linux-x64-<version>.vsix
@@ -183,5 +183,5 @@ MIT — use it, modify it, ship it commercially, keeping the attribution and lic
 
 <div align="center">
 <br>
-<sub><a href="https://bharatcode.ai">bharatcode.ai</a> · <a href="https://marketplace.visualstudio.com/items?itemName=thenabbu.bharatcode-vscode">Marketplace</a> · <a href="https://github.com/thenabbu/BharatCode-VSCode-Extension/releases/latest">Releases</a> · <a href="https://github.com/thenabbu/BharatCode-VSCode-Extension/issues">Issues</a></sub>
+<sub><a href="https://bharatcode.ai">bharatcode.ai</a> · <a href="https://marketplace.visualstudio.com/items?itemName=bharatcode.bharatcode-vscode">Marketplace</a> · <a href="https://github.com/BharatCode-ai/bharatcode-vscode/releases/latest">Releases</a> · <a href="https://github.com/BharatCode-ai/bharatcode-vscode/issues">Issues</a></sub>
 </div>

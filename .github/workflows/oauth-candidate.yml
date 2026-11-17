@@ -20,20 +20,30 @@ jobs:
     env:
       KILO_VERSION: 7.8.113
       KILO_CLI_TARGETS: win32-x64,win32-arm64,linux-x64,linux-arm64,linux-x64-musl,linux-arm64-musl,darwin-x64,darwin-arm64
-      KILO_SKIP_BUNDLED_BWRAP: '1'
+      KILO_SKIP_BUNDLED_BWRAP: "1"
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           persist-credentials: false
+          fetch-depth: 0
       - uses: ./.github/actions/setup-bun
         with:
           install-flags: "--os='*' --cpu='*'"
+      - name: Verify source and release guards
+        run: |
+          bun script/check-workflows.ts
+          bun script/check-md-table-padding.ts
+          bun script/check-opencode-annotations.ts --base 1e97696076bafea5ff4010627108ca50a162d9eb
+          bun script/extract-source-links.ts --check
+          python3 -B -m unittest discover -s packages/kilo-vscode/tests -p test_identity.py
+          bunx prettier --check .github/workflows/oauth-candidate.yml .github/workflows/release.yml .github/workflows/checks.yml packages/kilo-vscode/package.json packages/kilo-vscode/src/constants.ts packages/kilo-vscode/src/extension.ts packages/kilo-vscode/tests/unit/extension-identity.test.ts packages/kilo-vscode/script/build.ts packages/kilo-vscode/script/publish.ts packages/kilo-vscode/webview-ui/src/components/chat/FeedbackDialog.tsx packages/kilo-vscode/webview-ui/src/components/marketplace/MarketplaceContribute.tsx packages/kilo-vscode/webview-ui/src/components/settings/AboutKiloCodeTab.tsx
       - name: Verify website sign-in and command wiring
         working-directory: packages/kilo-vscode
         run: >-
           bun --config=/dev/null test --preload ./tests/setup/vscode-mock.ts
           ./tests/unit/bharatcode-website-signin.test.ts
           ./tests/unit/extension-arch.test.ts
+          ./tests/unit/extension-identity.test.ts
           ../opencode/test/plugin/bharatcode.test.ts
       - name: Build bundled backends
         working-directory: packages/opencode
@@ -42,36 +52,13 @@ jobs:
         working-directory: packages/kilo-vscode
         run: |
           export PATH="$PWD/node_modules/.bin:$PATH"
+          bun run check-kilocode-change
           bun run check-types:webview
           bun script/build.ts
       - name: Audit exact candidate packages
-        run: |
-          python3 - <<'PY'
-          import hashlib, json, os, pathlib, zipfile
-          root = pathlib.Path('packages/kilo-vscode/out')
-          targets = {'win32-x64', 'win32-arm64', 'linux-x64', 'linux-arm64', 'alpine-x64', 'alpine-arm64', 'darwin-x64', 'darwin-arm64'}
-          rows = []
-          for file in sorted(root.glob('bharatcode-vscode-*.vsix')):
-              target = file.stem.removeprefix('bharatcode-vscode-')
-              assert target in targets, target
-              targets.remove(target)
-              with zipfile.ZipFile(file) as archive:
-                  names = archive.namelist()
-                  manifest = json.loads(archive.read('extension/package.json'))
-                  assert manifest['publisher'] == 'thenabbu' and manifest['name'] == 'bharatcode-vscode'
-                  assert manifest['version'] == os.environ['KILO_VERSION']
-                  assert not any(name.endswith('.map') for name in names)
-                  binary = 'extension/bin/bharatcode' + ('.exe' if target.startswith('win32-') else '')
-                  assert binary in names
-                  assert ('extension/bin/bharatcode' if binary.endswith('.exe') else binary + '.exe') not in names
-                  assert b'Sign in with BharatCode' in archive.read('extension/dist/extension.js')
-              rows.append({'name': file.name, 'size': file.stat().st_size, 'sha256': hashlib.file_digest(file.open('rb'), 'sha256').hexdigest()})
-          assert not targets, targets
-          receipt = {'source': os.environ['GITHUB_SHA'], 'run': os.environ['GITHUB_RUN_ID'], 'attempt': os.environ['GITHUB_RUN_ATTEMPT'], 'version': os.environ['KILO_VERSION'], 'publisher': 'thenabbu', 'name': 'bharatcode-vscode', 'files': rows}
-          (root / 'candidate.json').write_text(json.dumps(receipt, indent=2) + '\n')
-          (root / 'SHA256SUMS').write_text(''.join(row['sha256'] + '  ' + row['name'] + '\n' for row in rows))
-          print(json.dumps(receipt, indent=2))
-          PY
+        run: >-
+          python3 packages/kilo-vscode/script/audit-vsix.py
+          --version "$KILO_VERSION" --receipt
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: vscode-oauth-${{ github.sha }}

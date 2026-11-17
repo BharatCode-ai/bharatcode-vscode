@@ -1,73 +1,71 @@
-# Releasing BharatCode
+# Preparing a BharatCode VS Code release
 
-One script, one command, from the lab host:
+## Extension identity
+
+The website sign-in extension is **`bharatcode.bharatcode-vscode`**: publisher `bharatcode`, package name `bharatcode-vscode`. The Marketplace publisher was verified on 2026-11-18. This is not the older CLI-launcher listing `bharatcode.bharatcode`; do not overwrite that listing.
+
+The former `thenabbu.bharatcode-vscode` identity belongs to the upstream BharatCode fork. Keep its attribution and license notices, but do not use it for this organization's packages, install links or runtime lookups. A publisher change is a different extension ID, not an automatic update or transfer of VS Code's extension-scoped state. Do not remove old installations or migrate profiles without a separate, explicit migration plan.
+
+Internal `kilo-code.*` commands/settings and the bundled CLI's data paths remain unchanged. Website sign-in still uses the loopback callback; changing the Marketplace publisher does not change the OAuth client, issuer or redirect URI.
+
+## Candidate-only workflow
+
+Use `.github/workflows/oauth-candidate.yml` on `website-signin`. It has read-only repository permissions and builds artifacts only: no tags, releases, registry uploads or production deployment.
+
+After the final identity changes are reviewed, committed and pushed with explicit authorization, one dispatch runs the consolidated checks and all eight platform builds:
 
 ```bash
-ssh lab 'bash /data/ssd240/bharatcode-vscode-workspace/scripts/release.sh <ver>'
+gh workflow run oauth-candidate.yml --repo BharatCode-ai/bharatcode-vscode --ref website-signin
 ```
 
-It bumps the version (every package.json still at the old literal → new version), gates with production esbuild, builds **win32-x64 and linux-x64** (CLI and VSIX each), audits each zip (no sourcemaps, platform-exclusive `extension/bin/` binary, LICENSE, manifest id/version), writes SHA256SUMS for those two, tags, and pushes `bc/main` + the tag. It does **not** build the other six platforms — those come from the per-platform recipe below.
+Do not dispatch until that branch contains the intended final commit. The command above does not push local edits. Publication is a separate decision. Do not substitute `release.yml` (which creates commits/tags/releases) or `script/publish.ts` (which uploads to registries).
 
-The full matrix (8 platforms, ~8 min each on the lab box):
+The candidate version is `7.8.113`, supplied by `KILO_VERSION` to both the CLI and extension builds. The source manifest remains at the base version until the build overrides it; do not bulk-bump unrelated workspace packages for an identity-only change. No new version has been published by this preparation.
 
-| Platform | CLI target (`KILO_CLI_TARGETS`) | binary |
+## Checks before rebuilding
+
+From the repository root:
+
+```bash
+bun script/check-workflows.ts
+bun script/check-md-table-padding.ts
+bun script/check-opencode-annotations.ts --worktree
+bun script/check-opencode-annotations.ts --base 1e97696076bafea5ff4010627108ca50a162d9eb
+bun script/extract-source-links.ts
+bun script/extract-source-links.ts --check
+python3 -B -m unittest discover -s packages/kilo-vscode/tests -p test_identity.py
+```
+
+From `packages/kilo-vscode`:
+
+```bash
+bun --config=/dev/null test --preload ./tests/setup/vscode-mock.ts ./tests/unit/bharatcode-website-signin.test.ts ./tests/unit/extension-arch.test.ts ./tests/unit/extension-identity.test.ts ../opencode/test/plugin/bharatcode.test.ts
+bun run check-kilocode-change
+```
+
+The candidate workflow also checks formatting, host and webview types, lint and production bundling. CI and the publishing script require Python 3 for the common VSIX audit; ordinary developer builds do not. The build script checks the source manifest against the runtime identity before packaging. Do not set `KILO_SKIP_HEAVY` in the candidate workflow.
+
+## Eight-platform evidence
+
+| VSIX target | CLI target | Bundled executable |
 |---|---|---|
-| win32-x64 | `win32-x64` | `bin/bharatcode.exe` |
-| win32-arm64 | `win32-arm64` | `bin/bharatcode.exe` |
-| linux-x64 | `linux-x64` | `bin/bharatcode` |
-| linux-arm64 | `linux-arm64` | `bin/bharatcode` |
-| alpine-x64 | `linux-x64-musl` | `bin/bharatcode` |
-| alpine-arm64 | `linux-arm64-musl` | `bin/bharatcode` |
-| darwin-x64 | `darwin-x64` | `bin/bharatcode` |
-| darwin-arm64 | `darwin-arm64` | `bin/bharatcode` |
+| win32-x64 | win32-x64 | bin/bharatcode.exe |
+| win32-arm64 | win32-arm64 | bin/bharatcode.exe |
+| linux-x64 | linux-x64 | bin/bharatcode |
+| linux-arm64 | linux-arm64 | bin/bharatcode |
+| alpine-x64 | linux-x64-musl | bin/bharatcode |
+| alpine-arm64 | linux-arm64-musl | bin/bharatcode |
+| darwin-x64 | darwin-x64 | bin/bharatcode |
+| darwin-arm64 | darwin-arm64 | bin/bharatcode |
 
-## Building the remaining six platforms
+`packages/kilo-vscode/script/audit-vsix.py` checks the exact target set, JSON and XML publisher/name/version/platform, compiled extension identity, website sign-in entry point, platform-exclusive binary, no sourcemaps, and BharatCode/Kilo license attribution. Candidate receipt, GitHub release audit and registry preflight all use this same audit. A source-level test also compiles the runtime identity constant in production mode.
 
-Run per platform (`win32-arm64`, `linux-arm64`, `alpine-x64`, `alpine-arm64`, `darwin-x64`, `darwin-arm64`), with `PATH` including both packages' `node_modules/.bin`:
+Only after every VSIX passes does the candidate job write `candidate.json` and `SHA256SUMS`. The receipt records source SHA, run ID/attempt, version, publisher, package name, full extension ID, target, size and SHA-256 for each file. Download and verify all eight hashes before installation tests or a separate publication approval. Static audits do not prove native binary execution or a real VS Code sign-in round trip.
 
-```bash
-# packages/opencode — build the CLI for the target key from the table
-KILO_CLI_TARGETS=<key> KILO_SKIP_BUNDLED_BWRAP=1 bun script/build.ts
-# stage the built binary (dist/@kilocode/cli-<key>/bin/bharatcode[.exe]) into packages/kilo-vscode/bin/
+The earlier candidate from source `9afaf1c9b4ac6e7b96c8dc773292473663935de8` used publisher `thenabbu`. Its eight verified VSIXes are historical evidence, not release-ready packages for the new identity. Preserve them; do not edit, relabel, re-zip or reuse their receipts. A fresh all-platform build from the final source commit is required.
 
-# packages/kilo-vscode — build the VSIX for the platform
-KILO_VSIX_TARGETS=<plat> KILO_SKIP_HEAVY=1 KILO_SKIP_BUNDLED_BWRAP=1 bun script/build.ts
-mv out/*.vsix /data/ssd240/vsix-out/bharatcode-vscode-<plat>-<ver>.vsix
-# run the zip audit (same rules as the script), then append the file's sha256 to SHA256SUMS
-```
+## Isolated installation validation
 
-Then upload from anywhere with `gh`:
+Use disposable VS Code user-data and extensions directories for the final candidate. Confirm the extension is registered as `bharatcode.bharatcode-vscode`, command activation and version lookup work, browser sign-in/cancel/retry work without a model request, and the correct bundled backend starts on each supported OS/architecture. Never use real profiles or credentials for automated fixtures.
 
-```bash
-gh release upload <ver> -R thenabbu/BharatCode-VSCode-Extension --clobber \
-  /data/ssd240/vsix-out/bharatcode-vscode-<plat>-<ver>.vsix ... SHA256SUMS
-```
-
-(or `gh release create <tag> ... --notes-file notes.md` for a fresh release; the repo flag `-R` is required.)
-
-## Version scheme
-
-- Fork of Kilo Code. BharatCode releases are **plain semver `X.Y.Z`** — necessarily so, see below.
-- **Scheme:** upstream's `major.minor` is preserved and OUR release counter lives in the patch, offset by 100. First release of base 7.8 is `7.8.101`, then `7.8.102`, `7.8.103`… An upstream sync that moves the base to 7.9 restarts at `7.9.101`.
-- **Why not `7.8.17-bc.3`:** the Marketplace *upload* validator rejects any prerelease suffix (`-bc.3`), with "must be one to four numbers separated by a period".
-- **Why not `7.8.17.3`:** `vsce package` — which BUILDS the vsix — refuses a fourth component outright (`Invalid extension "version"`). Verified by direct test: `7.8.17-bc.3` and `7.8.101` both pass vsce; `7.8.17.3` fails.
-- **The intersection is a 3-part numeric version.** The 100 offset keeps 1–99 free for real upstream patch releases of that minor, so a future upstream `7.8.20` sorts BELOW our `7.8.101` and can never collide.
-- Tags use the same string (`7.8.101`). `release.yml` derives `major.minor` from the root `package.json` and takes the highest **pure 3-segment numeric** tag as the counter — legacy `-bc.N` and 4-part tags are filtered out, since they would corrupt the count.
-- The Zed `extension.toml` is NOT version-synced: Zed validates strict semver against upstream's own release URLs, so it keeps upstream's version and stays upstream-maintained.
-- ~36 `package.json` files share the version string; the bump replaces the old literal once per file. The embedded CLI inherits it via `KILO_VERSION` (`packages/opencode/script/build.ts`), so extension About and `bharatcode --version` stay in sync.
-- Tag the exact final release commit — if you amend after tagging, re-point the tag (`git tag -d` + re-create) or the push ships the old tree.
-
-## What a release must prove (the script enforces)
-
-- tree clean, branch synced with origin, tag not taken
-- esbuild production gate RC=0
-- zip audit per platform: zero `*.map`, only the target platform's binary under `extension/bin/`, `extension/LICENSE.txt` with the BharatCode line, manifest `thenabbu.bharatcode-vscode` at the new version
-- sha256 recorded before anything else touches `out/`
-
-## Pitfalls that bit once
-
-- **Never `git add -A` while builds run** — `bin/` holds the 150-290MB CLI binary; committing it makes GitHub reject the push (100MB hard limit). `bin/bharatcode` and `bin/bharatcode.exe` stay untracked; only `bin/kilodev*` are tracked. If a large blob sneaks into a commit, `git rm --cached <file>` (one pathspec per call — a missing second pathspec fails the whole command), amend, re-point the tag, push.
-- The factory emits unsuffixed names (`bharatcode-vscode-<plat>.vsix`); the script renames to `-<version>` suffixes on move.
-- Builds rewrite `bun.lock` and flip `bin/kilodev.cmd` mode — fold lockfile drift into the release commit, and `git checkout --` the mode bit.
-- `vsce` must be on PATH for the factory (`packages/kilo-vscode/node_modules/.bin`).
-- No publish CI: builds run where the toolchain lives. Marketplace publish config stays intact for the future listing.
+Do not delete or merge existing users' extension state to make a candidate pass. Marketplace identity consolidation alone does not establish migration compatibility with either older listing.

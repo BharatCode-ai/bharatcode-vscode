@@ -208,10 +208,7 @@ const AboutKiloCodeTab: Component<AboutKiloCodeTabProps> = (props) => {
           }}
         >
           {language.t("settings.aboutKiloCode.feedback.prefix")}{" "}
-          <span
-            style={linkStyle}
-            onClick={() => open("https://github.com/thenabbu/BharatCode-VSCode-Extension/issues")}
-          >
+          <span style={linkStyle} onClick={() => open("https://github.com/BharatCode-ai/bharatcode-vscode/issues")}>
             GitHub
           </span>
           ,{" "}

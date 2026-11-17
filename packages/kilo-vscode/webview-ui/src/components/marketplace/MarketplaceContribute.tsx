@@ -2,7 +2,7 @@ import { Button } from "@kilocode/kilo-ui/button"
 import { useVSCode } from "../../context/vscode"
 import { useLanguage } from "../../context/language"
 
-const REPO_URL = "https://github.com/thenabbu/BharatCode-VSCode-Extension"
+const REPO_URL = "https://github.com/BharatCode-ai/bharatcode-vscode"
 
 export const MarketplaceContribute = () => {
   const vscode = useVSCode()

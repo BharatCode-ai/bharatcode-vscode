@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/thenabbu/BharatCode-VSCode-Extension/bc/main/docs/assets/hero.png" alt="BharatCode for VS Code — the VS Code extension for bharatcode.ai" width="100%">
+<img src="https://raw.githubusercontent.com/BharatCode-ai/bharatcode-vscode/bc/main/docs/assets/hero.png" alt="BharatCode for VS Code — the VS Code extension for bharatcode.ai" width="100%">
 
 <br>
 
@@ -67,8 +67,8 @@ Read-only questions, bug reports and feature ideas: [GitHub Issues](https://gith
 
 ## License
 
-[MIT](https://github.com/thenabbu/BharatCode-VSCode-Extension/blob/bc/main/LICENSE) — use it, modify it, ship it commercially, keeping the attribution and licence notices.
+[MIT](https://github.com/BharatCode-ai/bharatcode-vscode/blob/bc/main/LICENSE) — use it, modify it, ship it commercially, keeping the attribution and licence notices.
 
 <div align="center">
-<sub><a href="https://bharatcode.ai">bharatcode.ai</a> · <a href="https://github.com/thenabbu/BharatCode-VSCode-Extension">GitHub</a> · <a href="https://marketplace.visualstudio.com/items?itemName=thenabbu.bharatcode-vscode">Marketplace</a></sub>
+<sub><a href="https://bharatcode.ai">bharatcode.ai</a> · <a href="https://github.com/BharatCode-ai/bharatcode-vscode">GitHub</a> · <a href="https://marketplace.visualstudio.com/items?itemName=bharatcode.bharatcode-vscode">Marketplace</a></sub>
 </div>

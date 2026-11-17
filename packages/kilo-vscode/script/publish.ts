@@ -41,6 +41,9 @@ for (const target of targets) {
 
 console.log(`\nFound ${vsixFiles.length} VSIX files`)
 
+// Reject stale or relabelled packages before any irreversible upload.
+await $`python3 ${join(import.meta.dir, "audit-vsix.py")} --dir ${outDir} --version ${Script.version}`
+
 // CRA evidence is checked before the first irreversible Marketplace upload, not
 // after. Marketplace and Open VSX still receive only the VSIX; the sidecars are
 // published to the GitHub release, which is Kilo's SBOM record.

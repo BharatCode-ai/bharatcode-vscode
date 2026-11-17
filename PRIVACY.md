@@ -25,7 +25,7 @@ No system is 100% secure. We take reasonable measures to protect what we do hand
 
 ## Contact
 
-Questions about privacy: open an issue on [GitHub](https://github.com/thenabbu/BharatCode-VSCode-Extension/issues).
+Questions about privacy: open an issue on [GitHub](https://github.com/BharatCode-ai/bharatcode-vscode/issues).
 
 ---
 

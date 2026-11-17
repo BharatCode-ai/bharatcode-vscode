@@ -1,6 +1,6 @@
 # BharatCode Agent Runtime (`packages/opencode/`)
 
-The agent runtime and CLI behind BharatCode: agent loop, tool execution, session management, and an HTTP + SSE server. It is the core engine of the [BharatCode VS Code extension](https://github.com/thenabbu/BharatCode-VSCode-Extension), which bundles the built binary and spawns it as a local backend.
+The agent runtime and CLI behind BharatCode: agent loop, tool execution, session management, and an HTTP + SSE server. It is the core engine of the [BharatCode VS Code extension](https://github.com/BharatCode-ai/bharatcode-vscode), which bundles the built binary and spawns it as a local backend.
 
 ## Lineage
 
@@ -8,7 +8,7 @@ This package is a fork of the [Kilo Code CLI](https://github.com/Kilo-Org/kiloco
 
 ## Publishing
 
-This fork does not publish to npm or any registry. The built binary ships inside the platform `.vsix` files on the [Releases page](https://github.com/thenabbu/BharatCode-VSCode-Extension/releases); install the extension from there.
+This fork does not publish to npm or any registry. The built binary ships inside the platform `.vsix` files on the [Releases page](https://github.com/BharatCode-ai/bharatcode-vscode/releases); install the extension from there.
 
 ## Development
 

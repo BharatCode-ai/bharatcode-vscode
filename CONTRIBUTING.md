@@ -12,7 +12,7 @@ There are lots of ways to contribute to the project:
 - **Feature Requests:** Suggest new features or improvements
 - **Community Support:** Help other users in the community
 
-Questions and discussion belong in [GitHub Issues](https://github.com/thenabbu/BharatCode-VSCode-Extension/issues).
+Questions and discussion belong in [GitHub Issues](https://github.com/BharatCode-ai/bharatcode-vscode/issues).
 
 
 ## Prerequisites

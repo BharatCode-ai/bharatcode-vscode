@@ -92,6 +92,12 @@ jobs:
       # without it: "No usable Bubblewrap executable is available")
       - uses: ./.github/actions/setup-linux-sandbox
 
+      - name: OAuth identity and package regressions (blocking)
+        working-directory: packages/kilo-vscode
+        run: |
+          python3 -B -m unittest discover -s tests -p test_identity.py
+          bun --config=/dev/null test --preload ./tests/setup/vscode-mock.ts ./tests/unit/bharatcode-website-signin.test.ts ./tests/unit/extension-arch.test.ts ./tests/unit/extension-identity.test.ts ../opencode/test/plugin/bharatcode.test.ts
+
       # 37 pre-existing failures = rebrand drift (tests assert upstream
       # strings like "Add to Kilo Code"; nothing ran these in this fork
       # before CI existed). Non-blocking so they stay visible without
