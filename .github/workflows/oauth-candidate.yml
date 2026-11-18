@@ -2,12 +2,16 @@
 name: Website sign-in candidate
 
 on:
-  push:
-    branches: [website-signin]
   workflow_dispatch:
+    inputs:
+      reuse_verified_backends:
+        description: "Reuse only verified run 44186017306 backends; rebuild extension packages"
+        type: boolean
+        default: false
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
   group: oauth-candidate-${{ github.ref }}
@@ -26,17 +30,28 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
+      - name: Download and verify fixed parent backends
+        if: inputs.reuse_verified_backends
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api repos/BharatCode-ai/bharatcode-vscode/actions/artifacts/14373729058 > "$RUNNER_TEMP/parent-metadata.json"
+          gh api repos/BharatCode-ai/bharatcode-vscode/actions/artifacts/14373729058/zip > "$RUNNER_TEMP/parent.zip"
+          python3 -B packages/kilo-vscode/script/reuse-candidate.py prepare \
+            --metadata "$RUNNER_TEMP/parent-metadata.json" --archive "$RUNNER_TEMP/parent.zip" \
+            --root "$RUNNER_TEMP/verified-parent"
+          echo "CLI_DIST_DIR=$RUNNER_TEMP/verified-parent/dist" >> "$GITHUB_ENV"
       - uses: ./.github/actions/setup-bun
         with:
-          install-flags: "--os='*' --cpu='*'"
+          install-flags: ${{ inputs.reuse_verified_backends && '--os=linux --cpu=x64' || '--os=* --cpu=*' }}
       - name: Verify source and release guards
         run: |
           bun script/check-workflows.ts
           bun script/check-md-table-padding.ts
           bun script/check-opencode-annotations.ts --base 1e97696076bafea5ff4010627108ca50a162d9eb
           bun script/extract-source-links.ts --check
-          python3 -B -m unittest discover -s packages/kilo-vscode/tests -p test_identity.py
-          bunx prettier --check .github/workflows/oauth-candidate.yml .github/workflows/release.yml .github/workflows/checks.yml packages/kilo-vscode/package.json packages/kilo-vscode/src/constants.ts packages/kilo-vscode/src/extension.ts packages/kilo-vscode/tests/unit/extension-identity.test.ts packages/kilo-vscode/script/build.ts packages/kilo-vscode/script/publish.ts packages/kilo-vscode/webview-ui/src/components/chat/FeedbackDialog.tsx packages/kilo-vscode/webview-ui/src/components/marketplace/MarketplaceContribute.tsx packages/kilo-vscode/webview-ui/src/components/settings/AboutKiloCodeTab.tsx
+          python3 -B -m unittest discover -s packages/kilo-vscode/tests -p 'test_*.py'
+          bunx prettier --check .github/workflows/oauth-candidate.yml .github/workflows/release.yml .github/workflows/checks.yml packages/kilo-vscode/package.json packages/kilo-vscode/src/constants.ts packages/kilo-vscode/src/extension.ts packages/kilo-vscode/tests/unit/extension-identity.test.ts packages/kilo-vscode/tests/unit/reuse-candidate-resources.test.ts packages/kilo-vscode/script/build.ts packages/kilo-vscode/script/publish.ts packages/kilo-vscode/webview-ui/src/components/chat/FeedbackDialog.tsx packages/kilo-vscode/webview-ui/src/components/marketplace/MarketplaceContribute.tsx packages/kilo-vscode/webview-ui/src/components/settings/AboutKiloCodeTab.tsx
       - name: Verify website sign-in and command wiring
         working-directory: packages/kilo-vscode
         run: >-
@@ -44,8 +59,10 @@ jobs:
           ./tests/unit/bharatcode-website-signin.test.ts
           ./tests/unit/extension-arch.test.ts
           ./tests/unit/extension-identity.test.ts
+          ./tests/unit/reuse-candidate-resources.test.ts
           ../opencode/test/plugin/bharatcode.test.ts
       - name: Build bundled backends
+        if: ${{ !inputs.reuse_verified_backends }}
         working-directory: packages/opencode
         run: bun script/build.ts --skip-install
       - name: Build and check extension packages
@@ -56,9 +73,16 @@ jobs:
           bun run check-types:webview
           bun script/build.ts
       - name: Audit exact candidate packages
+        if: ${{ !inputs.reuse_verified_backends }}
         run: >-
           python3 packages/kilo-vscode/script/audit-vsix.py
           --version "$KILO_VERSION" --receipt
+      - name: Audit derived packages and unchanged backend resources
+        if: inputs.reuse_verified_backends
+        run: >-
+          python3 -B packages/kilo-vscode/script/reuse-candidate.py verify
+          --root "$RUNNER_TEMP/verified-parent"
+          --out packages/kilo-vscode/out
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: vscode-oauth-${{ github.sha }}

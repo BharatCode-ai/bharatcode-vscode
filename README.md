@@ -1,10 +1,10 @@
 <div align="center">
 
-<img src="docs/assets/hero.png" alt="BharatCode for VS Code — the VS Code extension for bharatcode.ai" width="100%">
+<img src="docs/assets/hero.png" alt="BharatCode Agent — the VS Code extension for bharatcode.ai" width="100%">
 
 <br>
 
-<a href="https://marketplace.visualstudio.com/items?itemName=bharatcode.bharatcode-vscode"><img src="https://vsmarketplacebadges.dev/version-short/bharatcode.bharatcode-vscode.svg" alt="Marketplace version"></a>
+<a href="https://marketplace.visualstudio.com/items?itemName=bharatcode.bharatcode-agent"><img src="https://vsmarketplacebadges.dev/version-short/bharatcode.bharatcode-agent.svg" alt="Marketplace version"></a>
 <a href="https://github.com/BharatCode-ai/bharatcode-vscode/releases/latest"><img src="https://img.shields.io/github/v/release/BharatCode-ai/bharatcode-vscode?label=release&amp;color=038fac&amp;labelColor=1c1410&amp;exclude_prerelease=true&amp;sort=semver" alt="Latest release"></a>
 <a href="https://github.com/BharatCode-ai/bharatcode-vscode/actions/workflows/checks.yml"><img src="https://img.shields.io/github/actions/workflow/status/BharatCode-ai/bharatcode-vscode/checks.yml?branch=bc/main&amp;label=checks&amp;color=e1ba00&amp;labelColor=1c1410" alt="CI status"></a>
 <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-5e5652?labelColor=1c1410" alt="MIT licensed"></a>
@@ -14,18 +14,18 @@
 
 ### Your coding agent, ready in one click
 
-**BharatCode for VS Code** installs the whole agent for you — runtime, provider, endpoint and models included. Sign in, and you are writing with it.
+**BharatCode Agent** installs the whole agent for you — runtime, provider, endpoint and models included. Sign in, and you are writing with it.
 
 </div>
 
 ---
 
-**[Install from the VS Code Marketplace »](https://marketplace.visualstudio.com/items?itemName=bharatcode.bharatcode-vscode)**
+**[Install from the VS Code Marketplace »](https://marketplace.visualstudio.com/items?itemName=bharatcode.bharatcode-agent)**
 
 *Or press `Ctrl+P` / `⌘P` and paste:*
 
 ```bash
-ext install bharatcode.bharatcode-vscode
+ext install bharatcode.bharatcode-agent
 ```
 
 VS Code **1.105.1** or newer. Chromebook, Linux, macOS and Windows all get their own build.
@@ -104,7 +104,7 @@ Eight platform builds ship per release, plus `SHA256SUMS`:
 Each carries its own runtime binary, which is why they are split per platform — you download yours, once. Verify with `sha256sum --check SHA256SUMS`.
 
 > **macOS first run:** builds are unsigned for now. If Gatekeeper blocks it:
-> `xattr -dr com.apple.quarantine ~/.vscode/extensions/bharatcode.bharatcode-vscode-*`
+> `xattr -dr com.apple.quarantine ~/.vscode/extensions/bharatcode.bharatcode-agent-*`
 
 </details>
 
@@ -183,5 +183,5 @@ MIT — use it, modify it, ship it commercially, keeping the attribution and lic
 
 <div align="center">
 <br>
-<sub><a href="https://bharatcode.ai">bharatcode.ai</a> · <a href="https://marketplace.visualstudio.com/items?itemName=bharatcode.bharatcode-vscode">Marketplace</a> · <a href="https://github.com/BharatCode-ai/bharatcode-vscode/releases/latest">Releases</a> · <a href="https://github.com/BharatCode-ai/bharatcode-vscode/issues">Issues</a></sub>
+<sub><a href="https://bharatcode.ai">bharatcode.ai</a> · <a href="https://marketplace.visualstudio.com/items?itemName=bharatcode.bharatcode-agent">Marketplace</a> · <a href="https://github.com/BharatCode-ai/bharatcode-vscode/releases/latest">Releases</a> · <a href="https://github.com/BharatCode-ai/bharatcode-vscode/issues">Issues</a></sub>
 </div>

@@ -12,10 +12,7 @@ import { EXTENSION_ID } from "../src/constants"
 
 const packageJsonPath = join(import.meta.dir, "..", "package.json")
 const packageJson = await Bun.file(packageJsonPath).json()
-if (
-  EXTENSION_ID !== "bharatcode.bharatcode-vscode" ||
-  `${packageJson.publisher}.${packageJson.name}` !== EXTENSION_ID
-) {
+if (EXTENSION_ID !== "bharatcode.bharatcode-agent" || `${packageJson.publisher}.${packageJson.name}` !== EXTENSION_ID) {
   throw new Error("Refusing to package a different Marketplace identity")
 }
 const version = process.env.KILO_VERSION ? process.env.KILO_VERSION : packageJson.version

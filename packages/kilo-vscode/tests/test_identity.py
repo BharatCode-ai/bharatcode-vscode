@@ -18,16 +18,17 @@ spec.loader.exec_module(module)
 VERSION = "7.8.113"
 
 
-def fixture(target="linux-x64", publisher="bharatcode", name="bharatcode-vscode", xml=None, bundle=None, extra=None):
+def fixture(target="linux-x64", publisher="bharatcode", name="bharatcode-agent", xml=None, bundle=None, extra=None, display="BharatCode Agent"):
     binary = "extension/bin/bharatcode" + (".exe" if target.startswith("win32-") else "")
     entries = {
-        "extension/package.json": json.dumps({"publisher": publisher, "name": name, "version": VERSION}),
+        "extension/package.json": json.dumps({"publisher": publisher, "name": name, "displayName": display, "version": VERSION}),
         "extension.vsixmanifest": xml or (
             '<PackageManifest xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011"><Metadata>'
             f'<Identity Publisher="{publisher}" Id="{name}" Version="{VERSION}" TargetPlatform="{target}"/>'
+            f'<DisplayName>{display}</DisplayName>'
             '</Metadata></PackageManifest>'
         ),
-        "extension/dist/extension.js": bundle or '"bharatcode.bharatcode-vscode"; "Sign in with BharatCode"',
+        "extension/dist/extension.js": bundle or f'"{publisher}.{name}"; "{display}"; "Sign in with BharatCode"',
         "extension/LICENSE.txt": "BharatCode modifications\nKilo Code",
         binary: "synthetic binary",
     }
@@ -54,6 +55,20 @@ class IdentityTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "package identity"):
             module.audit(fixture(name="bharatcode"), "linux-x64", VERSION)
 
+    def test_previous_listing(self):
+        with self.assertRaisesRegex(ValueError, "package identity"):
+            module.audit(fixture(name="bharatcode-vscode"), "linux-x64", VERSION)
+
+    def test_display_name(self):
+        with self.assertRaisesRegex(ValueError, "package display name"):
+            module.audit(fixture(display="BharatCode for VS Code"), "linux-x64", VERSION)
+        with zipfile.ZipFile(fixture()) as archive:
+            xml = archive.read("extension.vsixmanifest").decode().replace("BharatCode Agent", "BharatCode")
+        with self.assertRaisesRegex(ValueError, "VSIX XML display name"):
+            module.audit(fixture(xml=xml), "linux-x64", VERSION)
+        with self.assertRaisesRegex(ValueError, "compiled display name"):
+            module.audit(fixture(bundle='"bharatcode.bharatcode-agent"; "Sign in with BharatCode"'), "linux-x64", VERSION)
+
     def test_json_only_relabel(self):
         xml = '<PackageManifest><Metadata><Identity Publisher="thenabbu"/></Metadata></PackageManifest>'
         with self.assertRaisesRegex(ValueError, "VSIX XML Publisher"):
@@ -64,7 +79,7 @@ class IdentityTests(unittest.TestCase):
             module.audit(fixture(bundle='"thenabbu.bharatcode-vscode"; "Sign in with BharatCode"'), "linux-x64", VERSION)
 
     def test_stale_webview(self):
-        for identity in ["thenabbu.bharatcode-vscode", "bharatcode.bharatcode"]:
+        for identity in ["thenabbu.bharatcode-vscode", "bharatcode.bharatcode-vscode", "bharatcode.bharatcode"]:
             with self.subTest(identity=identity), self.assertRaisesRegex(ValueError, "identity|publisher"):
                 module.audit(fixture(extra={"extension/dist/webview/chunk.js": f'"{identity}"'}), "linux-x64", VERSION)
 
@@ -90,7 +105,7 @@ class IdentityTests(unittest.TestCase):
 
     def test_signin(self):
         with self.assertRaisesRegex(ValueError, "compiled website sign-in"):
-            module.audit(fixture(bundle='"bharatcode.bharatcode-vscode"'), "linux-x64", VERSION)
+            module.audit(fixture(bundle='"bharatcode.bharatcode-agent"; "BharatCode Agent"'), "linux-x64", VERSION)
 
     def test_exact_matrix_and_hashes(self):
         with tempfile.TemporaryDirectory(prefix="bharatcode-identity-") as tmp:
@@ -129,7 +144,7 @@ class IdentityTests(unittest.TestCase):
             )
             self.assertEqual(result.returncode, 0, result.stderr)
             receipt = json.loads((root / "candidate.json").read_text())
-            self.assertEqual(receipt["extensionId"], "bharatcode.bharatcode-vscode")
+            self.assertEqual(receipt["extensionId"], "bharatcode.bharatcode-agent")
             self.assertEqual(receipt["publisher"], "bharatcode")
             self.assertEqual(receipt["source"], "a" * 40)
             self.assertEqual(receipt["run"], "123")

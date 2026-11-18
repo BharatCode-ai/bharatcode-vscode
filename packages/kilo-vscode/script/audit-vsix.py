@@ -11,7 +11,10 @@ import xml.etree.ElementTree as ET
 import zipfile
 
 PUBLISHER = "bharatcode"
-NAME = "bharatcode-vscode"
+NAME = "bharatcode-agent"
+DISPLAY_NAME = "BharatCode Agent"
+# Artifact filenames are a stable packaging convention, not the Marketplace ID.
+ARTIFACT_PREFIX = "bharatcode-vscode"
 IDENTITY = f"{PUBLISHER}.{NAME}"
 TARGETS = (
     "win32-x64", "win32-arm64", "linux-x64", "linux-arm64",
@@ -32,6 +35,7 @@ def audit(file, target, version):
         require(not any(name.endswith(".map") for name in names), "sourcemaps in VSIX")
         manifest = json.loads(archive.read("extension/package.json"))
         require(manifest["publisher"] == PUBLISHER and manifest["name"] == NAME, "package identity")
+        require(manifest.get("displayName") == DISPLAY_NAME, "package display name")
         require(manifest["version"] == version, "package version")
         xml = ET.fromstring(archive.read("extension.vsixmanifest"))
         identity = xml.find("{*}Metadata/{*}Identity")
@@ -40,6 +44,7 @@ def audit(file, target, version):
             "Publisher": PUBLISHER, "Id": NAME, "Version": version, "TargetPlatform": target,
         }.items():
             require(identity.get(key) == value, f"VSIX XML {key}")
+        require(xml.findtext("{*}Metadata/{*}DisplayName") == DISPLAY_NAME, "VSIX XML display name")
         binary = "extension/bin/bharatcode" + (".exe" if target.startswith("win32-") else "")
         other = "extension/bin/bharatcode" if binary.endswith(".exe") else binary + ".exe"
         require(binary in names and other not in names, "platform binary")
@@ -47,18 +52,20 @@ def audit(file, target, version):
         require("BharatCode modifications" in license and "Kilo Code" in license, "license attribution")
         bundle = archive.read("extension/dist/extension.js")
         require(IDENTITY.encode() in bundle, "compiled extension identity")
+        require(DISPLAY_NAME.encode() in bundle, "compiled display name")
         require(b"Sign in with BharatCode" in bundle, "compiled website sign-in")
         for name in names:
             if name.startswith("extension/dist/") and name.endswith(".js"):
                 data = archive.read(name)
                 require(b"thenabbu.bharatcode-vscode" not in data, f"old publisher in {name}")
+                require(b"bharatcode.bharatcode-vscode" not in data, f"old extension identity in {name}")
                 require(not re.search(rb"bharatcode\.bharatcode(?![\w-])", data), f"CLI launcher identity in {name}")
 
 
 def inspect(directory, version, targets=TARGETS, versioned=False):
     require(len(targets) == len(set(targets)) and bool(targets), "duplicate or empty targets")
     suffix = f"-{version}" if versioned else ""
-    expected = {f"{NAME}-{target}{suffix}.vsix": target for target in targets}
+    expected = {f"{ARTIFACT_PREFIX}-{target}{suffix}.vsix": target for target in targets}
     files = sorted(directory.glob("*.vsix"))
     require({file.name for file in files} == set(expected), "unexpected or missing VSIX target set")
     rows = []

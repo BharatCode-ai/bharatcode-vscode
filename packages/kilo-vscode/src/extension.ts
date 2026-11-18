@@ -877,7 +877,7 @@ export async function activate(context: vscode.ExtensionContext) {
     ),
   )
 
-  // Register URI handler for extension deep links (vscode://bharatcode.bharatcode-vscode/kilocode/...)
+  // Register URI handler for extension deep links (vscode://bharatcode.bharatcode-agent/kilocode/...)
   context.subscriptions.push(
     vscode.window.registerUriHandler({
       async handleUri(uri: vscode.Uri) {

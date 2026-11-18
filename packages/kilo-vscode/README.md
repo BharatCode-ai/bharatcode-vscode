@@ -1,12 +1,12 @@
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/BharatCode-ai/bharatcode-vscode/bc/main/docs/assets/hero.png" alt="BharatCode for VS Code — the VS Code extension for bharatcode.ai" width="100%">
+<img src="https://raw.githubusercontent.com/BharatCode-ai/bharatcode-vscode/bc/main/docs/assets/hero.png" alt="BharatCode Agent — the VS Code extension for bharatcode.ai" width="100%">
 
 <br>
 
 ### Your coding agent, ready in one click
 
-**BharatCode for VS Code** installs the whole agent for you — runtime, provider, endpoint and models included. Sign in, and you are writing with it. MIT licensed, no telemetry, no second account.
+**BharatCode Agent** installs the whole agent for you — runtime, provider, endpoint and models included. Sign in, and you are writing with it. MIT licensed, no telemetry, no second account.
 
 </div>
 
@@ -70,5 +70,5 @@ Read-only questions, bug reports and feature ideas: [GitHub Issues](https://gith
 [MIT](https://github.com/BharatCode-ai/bharatcode-vscode/blob/bc/main/LICENSE) — use it, modify it, ship it commercially, keeping the attribution and licence notices.
 
 <div align="center">
-<sub><a href="https://bharatcode.ai">bharatcode.ai</a> · <a href="https://github.com/BharatCode-ai/bharatcode-vscode">GitHub</a> · <a href="https://marketplace.visualstudio.com/items?itemName=bharatcode.bharatcode-vscode">Marketplace</a></sub>
+<sub><a href="https://bharatcode.ai">bharatcode.ai</a> · <a href="https://github.com/BharatCode-ai/bharatcode-vscode">GitHub</a> · <a href="https://marketplace.visualstudio.com/items?itemName=bharatcode.bharatcode-agent">Marketplace</a></sub>
 </div>
