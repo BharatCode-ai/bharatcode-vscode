@@ -93,7 +93,9 @@ describe("BharatCode Agent public namespace and persistent identity", () => {
   it("matches sidebar/container IDs, panel IDs, context keys and command references", () => {
     const container = pkg.contributes.viewsContainers.activitybar[0].id
     const view = pkg.contributes.views[container][0].id
-    expect(container).toBe(`${NAMESPACE}.ActivityBar`)
+    expect(container).toBe(`${NAMESPACE}-ActivityBar`)
+    // VS Code rejects dots in container IDs (unlike command and view IDs).
+    expect(container).toMatch(/^[a-zA-Z0-9_-]+$/)
     expect(view).toBe(`${NAMESPACE}.SidebarProvider`)
     expect(read("src/KiloProvider.ts")).toContain(`viewType = "${view}"`)
     expect(read("src/extension.ts")).toContain(`"${view}.focus"`)

@@ -75,7 +75,7 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "bharatcode-agent.ActivityBar",
+          "id": "bharatcode-agent-ActivityBar",
           "title": "BharatCode",
           "icon": "assets/icons/kilo-light.png",
           "darkIcon": "assets/icons/kilo-dark.png"
@@ -83,7 +83,7 @@
       ]
     },
     "views": {
-      "bharatcode-agent.ActivityBar": [
+      "bharatcode-agent-ActivityBar": [
         {
           "type": "webview",
           "id": "bharatcode-agent.SidebarProvider",
