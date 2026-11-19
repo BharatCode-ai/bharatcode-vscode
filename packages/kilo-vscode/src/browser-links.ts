@@ -1,7 +1,8 @@
+import { configuration } from "./configuration"
 import * as vscode from "vscode"
 import { integratedBrowserLinkDestination } from "./services/browser-automation/chrome-setting"
 
-const BROWSER_AUTOMATION = "kilo-code.new.experimental"
+const BROWSER_AUTOMATION = "bharatcode-agent.experimental"
 
 /** True when the URL is an http(s) web link, which is all the browser handles. */
 export function isWebLink(url: string): boolean {
@@ -20,8 +21,7 @@ export function isWebLink(url: string): boolean {
  */
 export function shouldOpenLinkInIntegratedBrowser(url: string): boolean {
   if (!vscode.workspace.isTrusted) return false
-  if (vscode.workspace.getConfiguration(BROWSER_AUTOMATION).get<boolean>("browserAutomation", false) !== true)
-    return false
+  if (configuration(BROWSER_AUTOMATION).get<boolean>("browserAutomation", false) !== true) return false
   if (integratedBrowserLinkDestination() !== "integrated") return false
   return isWebLink(url)
 }

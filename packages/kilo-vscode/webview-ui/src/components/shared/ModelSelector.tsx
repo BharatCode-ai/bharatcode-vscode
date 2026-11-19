@@ -49,6 +49,7 @@ import {
   rankModelSearch,
 } from "./model-selector-utils"
 import { providerFailure, providerFailureMessageKey } from "../../../../src/shared/provider-model"
+import { catalogNotice } from "../../../../src/shared/bharatcode-catalog"
 import { ModelPreview } from "./ModelPreview"
 
 // ---------------------------------------------------------------------------
@@ -72,6 +73,10 @@ function rowKey(kind: "model" | "favorite", providerID: string, modelID: string)
 
 function groupKey(key: string) {
   return `group:${key}`
+}
+
+function isButtonEvent(event: KeyboardEvent) {
+  return !!event.target && !!(event.target as Element).closest?.("button")
 }
 
 // ---------------------------------------------------------------------------
@@ -151,7 +156,7 @@ export interface ModelSelectorBaseProps {
 }
 
 export const ModelSelectorBase: Component<ModelSelectorBaseProps> = (props) => {
-  const { connected, models, findModel, kiloUnavailable, failures } = useProvider()
+  const { connected, models, findModel, kiloUnavailable, failures, catalogReady } = useProvider()
   const language = useLanguage()
   const vscode = useVSCode()
   // Session context is optional — ModelSelectorBase is also used in Settings
@@ -251,7 +256,8 @@ export const ModelSelectorBase: Component<ModelSelectorBaseProps> = (props) => {
     const c = connected()
     return models().some((m) => available(m, c))
   })
-  const canOpen = () => hasProviders() || ((props.allowClear ?? false) && !!props.value)
+  // An empty selector must remain usable so users can see and recover from a catalog failure.
+  const canOpen = () => !props.models || hasProviders() || ((props.allowClear ?? false) && !!props.value)
 
   // Flat filtered list for keyboard navigation
   const filtered = createMemo(() => {
@@ -768,6 +774,8 @@ export const ModelSelectorBase: Component<ModelSelectorBaseProps> = (props) => {
       return
     }
 
+    // Preserve native Enter/Space activation for retry, sign-in and other popup buttons.
+    if (isButtonEvent(e)) return
     if (list.length === 0) return
 
     if (e.key === "ArrowDown" || e.key === "ArrowUp") {
@@ -815,7 +823,30 @@ export const ModelSelectorBase: Component<ModelSelectorBaseProps> = (props) => {
   }
 
   const kiloModelFailure = createMemo(() => providerFailure(KILO_GATEWAY_ID, failures()))
+  const notice = createMemo(() =>
+    props.models
+      ? undefined
+      : catalogNotice({
+          ready: catalogReady(),
+          connected: connected(),
+          failures: failures(),
+          hasModels: hasProviders(),
+        }),
+  )
+  const recoverCatalog = () => {
+    if (notice()?.action === "signIn") vscode.postMessage({ type: "connectBharatcode" })
+    else if (catalogReady()) vscode.postMessage({ type: "requestProviders", refresh: true })
+  }
   const noProvidersLabel = () => {
+    const state = notice()
+    if (state)
+      return language.t(
+        !catalogReady()
+          ? "bharatcode.catalog.loading"
+          : state.action === "signIn"
+            ? "bharatcode.catalog.signIn"
+            : "bharatcode.catalog.unavailable",
+      )
     const failure = kiloModelFailure()
     if (failure) {
       const { key, vars } = providerFailureMessageKey(failure)
@@ -988,6 +1019,19 @@ export const ModelSelectorBase: Component<ModelSelectorBaseProps> = (props) => {
                   </Show>
                 </div>
 
+                <Show when={notice()}>
+                  {(state) => (
+                    <div class="model-selector-notice" role="status" aria-live="polite">
+                      <span>{language.t(state().key, state().vars)}</span>
+                      <Show when={state().action}>
+                        <Button size="small" variant="secondary" onClick={recoverCatalog}>
+                          {language.t(`bharatcode.catalog.${state().action}`)}
+                        </Button>
+                      </Show>
+                    </div>
+                  )}
+                </Show>
+
                 <div
                   id={listID}
                   class="model-selector-list"
@@ -996,7 +1040,7 @@ export const ModelSelectorBase: Component<ModelSelectorBaseProps> = (props) => {
                   ref={listRef}
                   onMouseMove={pointerMove}
                 >
-                  <Show when={groups().length === 0}>
+                  <Show when={groups().length === 0 && !notice()}>
                     <div class="model-selector-empty" role="status" aria-live="polite">
                       {language.t("dialog.model.empty")}
                     </div>

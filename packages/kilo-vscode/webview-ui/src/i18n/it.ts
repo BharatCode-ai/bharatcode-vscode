@@ -618,10 +618,9 @@ export const dict = {
   "settings.aboutKiloCode.title": "Informazioni su BharatCode",
   "session.messages.welcome":
     "BharatCode esegue un agente in questo pannello, basato sui tuoi modelli BharatCode. Chiedigli di creare funzionalità, correggere bug o spiegare la tua codebase.",
-  "session.messages.connect": "Connetti BharatCode",
+  "session.messages.connect": "Accedi con BharatCode",
   "session.onboarding.title": "Configura BharatCode",
-  "session.onboarding.body":
-    "Accedi dal browser o incolla una chiave API: vanno bene entrambi. L'account è salvato dall'estensione, mai nelle impostazioni.",
+  "session.onboarding.body": "Autorizza l’accesso sul sito di BharatCode, poi torna a VS Code.",
   "session.onboarding.hint": "BharatCode è l’agente di questo pannello. Collegalo una volta e inizia.",
   "session.workspaceScope.description":
     "La chat di BharatCode usa solo «{{folder}}», la prima cartella di questo workspace.",

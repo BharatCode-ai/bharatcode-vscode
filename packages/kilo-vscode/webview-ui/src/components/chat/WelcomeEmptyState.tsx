@@ -64,7 +64,6 @@ export const WelcomeEmptyState: Component<WelcomeEmptyStateProps> = (props) => {
           <button class="welcome-connect" onClick={() => vscode.postMessage({ type: "connectBharatcode" })}>
             {language.t("session.messages.connect")}
           </button>
-          <p class="welcome-onboarding-hint">{language.t("session.onboarding.hint")}</p>
         </div>
       </Show>
       <WorkspaceScopeHint />

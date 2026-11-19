@@ -21,6 +21,8 @@
   <!-- packages/opencode/src/config/tui-migrate.ts -->
 - <https://app.kilo.ai/usage>
   <!-- packages/opencode/src/kilocode/components/dialog-kilo-profile.tsx -->
+- <https://auth.bharatcode.ai>
+  <!-- packages/kilo-vscode/src/onboarding/bharatcode.ts -->
 - <https://auth.bharatcode.ai/auth/v1>
   <!-- packages/opencode/src/plugin/bharatcode.ts -->
 - <https://auth.x.ai>
@@ -32,16 +34,15 @@
 - <https://auth.x.ai/oauth2/token>
   <!-- packages/opencode/src/plugin/xai.ts -->
 - <https://bharatcode.ai>
-  <!-- packages/kilo-vscode/src/onboarding/bharatcode.ts -->
   <!-- packages/kilo-vscode/webview-ui/src/components/chat/FeedbackDialog.tsx -->
   <!-- packages/kilo-vscode/webview-ui/src/components/profile/ProfileView.tsx -->
   <!-- packages/kilo-vscode/webview-ui/src/components/settings/AboutKiloCodeTab.tsx -->
   <!-- packages/kilo-vscode/webview-ui/src/components/settings/ProviderConnectDialog.tsx -->
   <!-- packages/opencode/src/kilocode/const.ts -->
+  <!-- packages/opencode/src/plugin/bharatcode.ts -->
   <!-- packages/opencode/src/session/network.ts -->
 - <https://bharatcode.ai/api/model/v1>
-  <!-- packages/kilo-vscode/src/onboarding/bharatcode.ts -->
-  <!-- packages/opencode/src/provider/model-cache.ts -->
+  <!-- packages/opencode/src/kilocode/provider/bharatcode-catalog.ts -->
   <!-- packages/opencode/src/provider/models.ts -->
 - <https://bharatcode.ai/docs>
   <!-- packages/kilo-vscode/webview-ui/agent-manager/intro/AgentManagerIntro.tsx -->
@@ -77,6 +78,12 @@
   <!-- packages/kilo-vscode/src/utils.ts -->
 - <https://github.com/apps/kiloconnect>
   <!-- packages/opencode/src/cli/cmd/github.handler.ts -->
+- <https://github.com/BharatCode-ai/bharatcode-vscode>
+  <!-- packages/kilo-vscode/webview-ui/src/components/marketplace/MarketplaceContribute.tsx -->
+- <https://github.com/BharatCode-ai/bharatcode-vscode/issues>
+  <!-- packages/kilo-vscode/webview-ui/src/components/settings/AboutKiloCodeTab.tsx -->
+- <https://github.com/BharatCode-ai/bharatcode-vscode/issues/new/choose>
+  <!-- packages/kilo-vscode/webview-ui/src/components/chat/FeedbackDialog.tsx -->
 - <https://github.com/cline/cline/blob/main/evals/diff-edits/diff-apply/diff-06-23-25.ts>
   <!-- packages/opencode/src/tool/edit.ts -->
 - <https://github.com/cline/cline/blob/main/evals/diff-edits/diff-apply/diff-06-26-25.ts>
@@ -101,12 +108,6 @@
   <!-- packages/opencode/src/provider/provider.ts -->
 - <https://github.com/Rob--W/proxy-from-env>
   <!-- packages/opencode/src/util/proxy-env.ts -->
-- <https://github.com/thenabbu/BharatCode-VSCode-Extension>
-  <!-- packages/kilo-vscode/webview-ui/src/components/marketplace/MarketplaceContribute.tsx -->
-- <https://github.com/thenabbu/BharatCode-VSCode-Extension/issues>
-  <!-- packages/kilo-vscode/webview-ui/src/components/settings/AboutKiloCodeTab.tsx -->
-- <https://github.com/thenabbu/BharatCode-VSCode-Extension/issues/new/choose>
-  <!-- packages/kilo-vscode/webview-ui/src/components/chat/FeedbackDialog.tsx -->
 - <https://github.com/vercel/ai/blob/2dc67e0ef538307f21368db32d5a12345d98831b/packages/ai/src/logger/log-warnings.ts#L85>
   <!-- packages/opencode/src/server/server.ts -->
 - <https://gitlab.com>

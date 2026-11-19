@@ -1,12 +1,12 @@
 <div align="center">
 
-<img src="docs/assets/hero.png" alt="BharatCode for VS Code — the VS Code extension for bharatcode.ai" width="100%">
+<img src="docs/assets/hero.png" alt="BharatCode Agent — the VS Code extension for bharatcode.ai" width="100%">
 
 <br>
 
-<a href="https://marketplace.visualstudio.com/items?itemName=thenabbu.bharatcode-vscode"><img src="https://vsmarketplacebadges.dev/version-short/thenabbu.bharatcode-vscode.svg" alt="Marketplace version"></a>
-<a href="https://github.com/thenabbu/BharatCode-VSCode-Extension/releases/latest"><img src="https://img.shields.io/github/v/release/thenabbu/BharatCode-VSCode-Extension?label=release&amp;color=038fac&amp;labelColor=1c1410&amp;exclude_prerelease=true&amp;sort=semver" alt="Latest release"></a>
-<a href="https://github.com/thenabbu/BharatCode-VSCode-Extension/actions/workflows/checks.yml"><img src="https://img.shields.io/github/actions/workflow/status/thenabbu/BharatCode-VSCode-Extension/checks.yml?branch=bc/main&amp;label=checks&amp;color=e1ba00&amp;labelColor=1c1410" alt="CI status"></a>
+<a href="https://marketplace.visualstudio.com/items?itemName=bharatcode.bharatcode-agent"><img src="https://vsmarketplacebadges.dev/version-short/bharatcode.bharatcode-agent.svg" alt="Marketplace version"></a>
+<a href="https://github.com/BharatCode-ai/bharatcode-vscode/releases/latest"><img src="https://img.shields.io/github/v/release/BharatCode-ai/bharatcode-vscode?label=release&amp;color=038fac&amp;labelColor=1c1410&amp;exclude_prerelease=true&amp;sort=semver" alt="Latest release"></a>
+<a href="https://github.com/BharatCode-ai/bharatcode-vscode/actions/workflows/checks.yml"><img src="https://img.shields.io/github/actions/workflow/status/BharatCode-ai/bharatcode-vscode/checks.yml?branch=bc/main&amp;label=checks&amp;color=e1ba00&amp;labelColor=1c1410" alt="CI status"></a>
 <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-5e5652?labelColor=1c1410" alt="MIT licensed"></a>
 <a href="https://bharatcode.ai"><img src="https://img.shields.io/badge/provider-bharatcode.ai-ff6a35?labelColor=1c1410" alt="Provider: bharatcode.ai"></a>
 
@@ -14,18 +14,18 @@
 
 ### Your coding agent, ready in one click
 
-**BharatCode for VS Code** installs the whole agent for you — runtime, provider, endpoint and models included. Sign in, and you are writing with it.
+**BharatCode Agent** installs the whole agent for you — runtime, provider, endpoint and models included. Sign in, and you are writing with it.
 
 </div>
 
 ---
 
-**[Install from the VS Code Marketplace »](https://marketplace.visualstudio.com/items?itemName=thenabbu.bharatcode-vscode)**
+**[Install from the VS Code Marketplace »](https://marketplace.visualstudio.com/items?itemName=bharatcode.bharatcode-agent)**
 
 *Or press `Ctrl+P` / `⌘P` and paste:*
 
 ```bash
-ext install thenabbu.bharatcode-vscode
+ext install bharatcode.bharatcode-agent
 ```
 
 VS Code **1.105.1** or newer. Chromebook, Linux, macOS and Windows all get their own build.
@@ -38,17 +38,9 @@ VS Code **1.105.1** or newer. Chromebook, Linux, macOS and Windows all get their
 
 **2. Open a folder.** `File → Open Folder`. Your project is what the agent reads and edits.
 
-**3. Sign in.** BharatCode greets you on first launch and offers both ways in:
+**3. Select Sign in with BharatCode.** Your browser opens the BharatCode website. Sign in if needed, approve access, then return to VS Code. No API key or model request is needed for setup.
 
-| | **Sign in with BharatCode** | **API key** |
-|---|---|---|
-| **Best for** | Nearly everyone | Scripts, shared machines, CI |
-| **How** | A browser tab opens; click approve; done | Paste a key from your bharatcode.ai account |
-| **Typing** | None | One paste |
-
-Both are first-class paths and both work on first run — pick either. Your credential is stored by the extension backend, **never** in `settings.json`, so it stays out of your repo and your dotfiles.
-
-Missed the prompt? `BharatCode: Connect Account` in the Command Palette brings it back.
+You can also run `BharatCode: Sign In` from the Command Palette. Already connected? Your existing connection keeps working.
 
 That is the entire setup. No base URL, no provider JSON, no model list, no CLI.
 
@@ -78,7 +70,7 @@ Your BharatCode account comes with two models, and the extension wires both up f
 
 | Model | Context | Best at |
 |---|---|---|
-| `qwen-3.8-27b` | 262k | Everyday edits and fast iteration |
+| `glm-5.3-flash` | 262k | Everyday edits and fast iteration |
 | `deepseek-v4.1-flash` | 1M | Whole-repo reasoning and long sessions |
 
 Both come from one OpenAI-compatible endpoint at `https://bharatcode.ai/api/model/v1`, and the list is read live from it.
@@ -94,7 +86,7 @@ Both come from one OpenAI-compatible endpoint at `https://bharatcode.ai/api/mode
 
 <br>
 
-Grab the file for your system from [Releases](https://github.com/thenabbu/BharatCode-VSCode-Extension/releases/latest), then run `Extensions: Install from VSIX...` from the Command Palette:
+Grab the file for your system from [Releases](https://github.com/BharatCode-ai/bharatcode-vscode/releases/latest), then run `Extensions: Install from VSIX...` from the Command Palette:
 
 ```bash
 code --install-extension bharatcode-vscode-linux-x64-<version>.vsix
@@ -112,7 +104,7 @@ Eight platform builds ship per release, plus `SHA256SUMS`:
 Each carries its own runtime binary, which is why they are split per platform — you download yours, once. Verify with `sha256sum --check SHA256SUMS`.
 
 > **macOS first run:** builds are unsigned for now. If Gatekeeper blocks it:
-> `xattr -dr com.apple.quarantine ~/.vscode/extensions/bharatcode.bharatcode-vscode-*`
+> `xattr -dr com.apple.quarantine ~/.vscode/extensions/bharatcode.bharatcode-agent-*`
 
 </details>
 
@@ -136,14 +128,14 @@ Install the extension, sign in, and the agent is running — because the extensi
 <details>
 <summary>Where does this extension come from?</summary>
 
-It is a fork of [Kilo Code](https://github.com/Kilo-Org/kilocode), itself a fork of [OpenCode](https://github.com/anomalyco/opencode). Those projects and their contributors built the agent this package runs, and the credit is theirs — MIT licensed, with attribution preserved in [LICENSE](LICENSE) and in the `kilocode_change` markers throughout the source. This fork brings that agent to the BharatCode provider, rebrands it, and reconfigures the provider layer so bharatcode.ai is wired in from the start. We build on their work; we do not claim it.
+This organization repository continues [Navya’s BharatCode extension](https://github.com/thenabbu/BharatCode-VSCode-Extension). It is a fork of [Kilo Code](https://github.com/Kilo-Org/kilocode), itself a fork of [OpenCode](https://github.com/anomalyco/opencode). Those projects and their contributors built the agent this package runs, and the credit is theirs — MIT licensed, with attribution preserved in [LICENSE](LICENSE) and in the `kilocode_change` markers throughout the source. This fork brings that agent to the BharatCode provider, rebrands it, and reconfigures the provider layer so bharatcode.ai is wired in from the start. We build on their work; we do not claim it.
 
 </details>
 
 <details>
 <summary>Do I need a key if I sign in with my browser?</summary>
 
-One or the other is enough. Browser sign-in stores a session; a pasted key stores a key. Both land in the extension backend's auth store and both go only to the provider you connected.
+No. Approve VS Code on the BharatCode website. The extension backend stores the session; you don’t need to create or paste a key.
 
 </details>
 
@@ -191,5 +183,5 @@ MIT — use it, modify it, ship it commercially, keeping the attribution and lic
 
 <div align="center">
 <br>
-<sub><a href="https://bharatcode.ai">bharatcode.ai</a> · <a href="https://marketplace.visualstudio.com/items?itemName=thenabbu.bharatcode-vscode">Marketplace</a> · <a href="https://github.com/thenabbu/BharatCode-VSCode-Extension/releases/latest">Releases</a> · <a href="https://github.com/thenabbu/BharatCode-VSCode-Extension/issues">Issues</a></sub>
+<sub><a href="https://bharatcode.ai">bharatcode.ai</a> · <a href="https://marketplace.visualstudio.com/items?itemName=bharatcode.bharatcode-agent">Marketplace</a> · <a href="https://github.com/BharatCode-ai/bharatcode-vscode/releases/latest">Releases</a> · <a href="https://github.com/BharatCode-ai/bharatcode-vscode/issues">Issues</a></sub>
 </div>

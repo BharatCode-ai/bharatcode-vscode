@@ -34,6 +34,6 @@ Server mode is opt-in only. When enabled, set `KILO_SERVER_PASSWORD` to require 
 
 ## Reporting security issues
 
-We value the contributions of the security research community and recognize the importance of a coordinated approach to vulnerability disclosure. If you have discovered a security vulnerability, please report it privately through [GitHub Security Advisories](https://github.com/thenabbu/BharatCode-VSCode-Extension/security/advisories/new) for this repository.
+We value the contributions of the security research community and recognize the importance of a coordinated approach to vulnerability disclosure. If you have discovered a security vulnerability, please report it privately through [GitHub Security Advisories](https://github.com/BharatCode-ai/bharatcode-vscode/security/advisories/new) for this repository.
 
 We will acknowledge your report and work with you on a fix and coordinated disclosure. Please do not open a public issue for vulnerabilities.

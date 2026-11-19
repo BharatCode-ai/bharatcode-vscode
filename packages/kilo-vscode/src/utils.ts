@@ -1,3 +1,4 @@
+import { configuration } from "./configuration"
 import * as crypto from "crypto"
 import * as vscode from "vscode"
 import { buildCspString } from "./webview-html-utils"
@@ -14,7 +15,7 @@ function clamp(size: number) {
 }
 
 export function getWebviewFontSize(): number {
-  const raw = vscode.workspace.getConfiguration("kilo-code.new").get<number>("fontSize", 13)
+  const raw = configuration("bharatcode-agent").get<number>("fontSize", 13)
   return clamp(raw)
 }
 

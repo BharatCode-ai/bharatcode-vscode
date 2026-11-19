@@ -1844,6 +1844,8 @@ export type ExtensionMessage =
   | SpeechToTextModelsLoadedMessage
   | ProvidersLoadedMessage
   | { type: "providersLoading" }
+  | { type: "providersRefreshing" }
+  | { type: "providersLoadFailed"; failure: ProviderFailure }
   | AgentsLoadedMessage
   | SkillsLoadedMessage
   | CommandsLoadedMessage

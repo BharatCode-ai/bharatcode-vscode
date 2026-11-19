@@ -1,12 +1,12 @@
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/thenabbu/BharatCode-VSCode-Extension/bc/main/docs/assets/hero.png" alt="BharatCode for VS Code — the VS Code extension for bharatcode.ai" width="100%">
+<img src="https://raw.githubusercontent.com/BharatCode-ai/bharatcode-vscode/bc/main/docs/assets/hero.png" alt="BharatCode Agent — the VS Code extension for bharatcode.ai" width="100%">
 
 <br>
 
 ### Your coding agent, ready in one click
 
-**BharatCode for VS Code** installs the whole agent for you — runtime, provider, endpoint and models included. Sign in, and you are writing with it. MIT licensed, no telemetry, no second account.
+**BharatCode Agent** installs the whole agent for you — runtime, provider, endpoint and models included. Sign in, and you are writing with it. MIT licensed, no telemetry, no second account.
 
 </div>
 
@@ -18,17 +18,9 @@
 
 **2. Open a folder.** `File → Open Folder`. Your project is what the agent reads and edits.
 
-**3. Sign in.** BharatCode greets you on first launch with **both** ways in:
+**3. Select Sign in with BharatCode.** Your browser opens the BharatCode website. Sign in if needed, approve access, then return to VS Code. No API key or model request is needed for setup.
 
-| | **Sign in with BharatCode** | **API key** |
-|---|---|---|
-| **Best for** | Nearly everyone | Scripts, shared machines, CI |
-| **How** | A browser tab opens; click approve; done | Paste a key from your bharatcode.ai account |
-| **Typing** | None | One paste |
-
-Either path works on first run. Your credential stays in the extension backend, out of `settings.json` and out of your repo.
-
-Missed the prompt? `BharatCode: Connect Account` brings it back.
+You can also run `BharatCode: Sign In` from the Command Palette. Already connected? Your existing connection keeps working.
 
 That is the entire setup: the base URL, provider, endpoint and model list all come preconfigured.
 
@@ -58,7 +50,7 @@ Two models ship with your BharatCode account, and the extension wires both up fo
 
 | Model | Context | Best at |
 |---|---|---|
-| `qwen-3.8-27b` | 262k | Everyday edits and fast iteration |
+| `glm-5.3-flash` | 262k | Everyday edits and fast iteration |
 | `deepseek-v4.1-flash` | 1M | Whole-repo reasoning and long sessions |
 
 Both come from one OpenAI-compatible endpoint at `https://bharatcode.ai/api/model/v1`, and the list is read live from it.
@@ -71,12 +63,12 @@ Both come from one OpenAI-compatible endpoint at `https://bharatcode.ai/api/mode
 
 A fork of [Kilo Code](https://github.com/Kilo-Org/kilocode), itself a fork of [OpenCode](https://github.com/anomalyco/opencode). Those projects and their contributors built the agent this package runs, and the credit is theirs — MIT licensed, attribution preserved in the licence. This fork brings that agent to the BharatCode provider and reconfigures the provider layer so bharatcode.ai is wired in from the start.
 
-Read-only questions, bug reports and feature ideas: [GitHub Issues](https://github.com/thenabbu/BharatCode-VSCode-Extension/issues). Full docs, contribution guide and privacy statement are in the [repository](https://github.com/thenabbu/BharatCode-VSCode-Extension).
+Read-only questions, bug reports and feature ideas: [GitHub Issues](https://github.com/BharatCode-ai/bharatcode-vscode/issues). Full docs, contribution guide and privacy statement are in the [repository](https://github.com/BharatCode-ai/bharatcode-vscode).
 
 ## License
 
-[MIT](https://github.com/thenabbu/BharatCode-VSCode-Extension/blob/bc/main/LICENSE) — use it, modify it, ship it commercially, keeping the attribution and licence notices.
+[MIT](https://github.com/BharatCode-ai/bharatcode-vscode/blob/bc/main/LICENSE) — use it, modify it, ship it commercially, keeping the attribution and licence notices.
 
 <div align="center">
-<sub><a href="https://bharatcode.ai">bharatcode.ai</a> · <a href="https://github.com/thenabbu/BharatCode-VSCode-Extension">GitHub</a> · <a href="https://marketplace.visualstudio.com/items?itemName=thenabbu.bharatcode-vscode">Marketplace</a></sub>
+<sub><a href="https://bharatcode.ai">bharatcode.ai</a> · <a href="https://github.com/BharatCode-ai/bharatcode-vscode">GitHub</a> · <a href="https://marketplace.visualstudio.com/items?itemName=bharatcode.bharatcode-agent">Marketplace</a></sub>
 </div>

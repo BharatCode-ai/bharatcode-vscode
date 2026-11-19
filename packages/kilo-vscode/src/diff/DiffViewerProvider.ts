@@ -1,3 +1,4 @@
+import { configuration } from "../configuration"
 import * as vscode from "vscode"
 import { randomUUID } from "node:crypto"
 import { isHttpsUrl, type PRReviewCommentData } from "../shared/review-comments"
@@ -112,7 +113,7 @@ export interface DiffViewerProviderOptions {
  * DiffSource.
  */
 export class DiffViewerProvider implements vscode.Disposable {
-  public static readonly viewType = "kilo-code.new.DiffViewerPanel"
+  public static readonly viewType = "bharatcode-agent.DiffViewerPanel"
 
   private panel: vscode.WebviewPanel | undefined
   private ctx: PanelContext | undefined
@@ -207,7 +208,7 @@ export class DiffViewerProvider implements vscode.Disposable {
   }
 
   /**
-   * Entry point for the `kilo-code.new.showChanges` command. Composes the
+   * Entry point for the `bharatcode-agent.showChanges` command. Composes the
    * PanelContext from the arg + injected session/workspace lookups so
    * callers don't have to know about it.
    *
@@ -423,7 +424,7 @@ export class DiffViewerProvider implements vscode.Disposable {
     void this.panel.webview.postMessage({
       type: "ready",
       vscodeLanguage: vscode.env.language,
-      languageOverride: vscode.workspace.getConfiguration("kilo-code.new").get<string>("language"),
+      languageOverride: configuration("bharatcode-agent").get<string>("language"),
       fontSize: getWebviewFontSize(),
       workspaceDirectory: this.ctx?.dir ?? getWorkspaceRoot(),
     })

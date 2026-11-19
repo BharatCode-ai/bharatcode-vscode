@@ -734,9 +734,9 @@ export const dict = {
 
   "session.messages.welcome":
     "BharatCode 在此面板中运行一个由你的 BharatCode 模型驱动的智能体。让它构建功能、修复 bug 或解释你的代码库。",
-  "session.messages.connect": "连接 BharatCode",
+  "session.messages.connect": "使用 BharatCode 登录",
   "session.onboarding.title": "设置 BharatCode",
-  "session.onboarding.body": "在浏览器中登录或粘贴 API 密钥，两种方式都可用。账户由扩展保存，不会写入设置。",
+  "session.onboarding.body": "在 BharatCode 网站上授权，然后返回 VS Code。",
   "session.onboarding.hint": "BharatCode 就是此面板中的智能体。连接一次即可开始。",
 
   "session.workspaceScope.description": "BharatCode 聊天仅使用此工作区中的第一个文件夹“{{folder}}”。",

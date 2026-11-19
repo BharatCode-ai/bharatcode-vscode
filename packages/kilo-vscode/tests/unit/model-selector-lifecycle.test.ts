@@ -46,6 +46,7 @@ function check(code: string) {
       freeDataLabel, autoSummary, buildTriggerLabel, sanitizeName, mostUsedModels, rankModelSearch } = await import("./webview-ui/src/components/shared/model-selector-utils.ts")
     const { isEnterKeyCommitNotIme } = await import("./webview-ui/src/utils/ime-enter.ts")
     const { providerFailure, providerFailureMessageKey } = await import("./src/shared/provider-model.ts")
+    const { catalogNotice } = await import("./src/shared/bharatcode-catalog.ts")
     const window = new EventTarget()
     const requestAnimationFrame = () => 1
     const cancelAnimationFrame = () => {}
@@ -76,7 +77,7 @@ function check(code: string) {
       const [favorites, setFavorites] = createSignal([{ providerID: "kilo", modelID: "alpha" }])
       const [usage, setUsage] = createSignal({ "kilo/bravo": { count: 7, lastUsed: 10 } })
       const [recent, setRecent] = createSignal([])
-      provider = { models, connected, findModel: (selection) => models().find((item) => item.providerID === selection?.providerID && item.id === selection?.modelID), kiloUnavailable: () => false, failures: () => [] }
+      provider = { models, connected, findModel: (selection) => models().find((item) => item.providerID === selection?.providerID && item.id === selection?.modelID), kiloUnavailable: () => false, failures: () => [], ready: () => true, catalogReady: () => true }
       session = {
         favoriteModels: () => { stats.favorites++; return favorites() },
         modelUsageHistory: () => { stats.usage++; return usage() },
@@ -107,6 +108,25 @@ function check(code: string) {
 }
 
 describe("ModelSelector closed popup work", () => {
+  it("leaves recovery buttons' Enter action alone with retained models or a clear row", () => {
+    check(`
+      for (const onlyClear of [false, true]) {
+        const state = scene()
+        try {
+          state.setOpen(true)
+          if (onlyClear) state.refresh([])
+          await flush()
+          const before = state.value()
+          let prevented = false
+          state.handleKeyDown({ key: "Enter", target: { closest: () => ({}) }, preventDefault() { prevented = true } })
+          assert.equal(prevented, false)
+          assert.equal(state.open(), true)
+          assert.deepEqual(state.value(), before)
+        } finally { state.dispose() }
+      }
+    `)
+  })
+
   it("keeps trigger state reactive without catalog filtering or personalization work while closed", () => {
     check(`
       const state = scene()
@@ -136,8 +156,8 @@ describe("ModelSelector closed popup work", () => {
         state.setValue(null)
         state.refresh([model("hidden", "offline"), model("kilo-auto/small")])
         assert.equal(state.hasProviders(), false)
-        assert.equal(state.canOpen(), false)
-        assert.equal(state.triggerLabel(), "dialog.model.noProviders")
+        assert.equal(state.canOpen(), true)
+        assert.equal(state.triggerLabel(), "bharatcode.catalog.signIn")
         state.setConnected(["offline"])
         assert.equal(state.hasProviders(), true)
         assert.equal(state.canOpen(), true)
@@ -156,7 +176,7 @@ describe("ModelSelector closed popup work", () => {
         assert.equal(clear.hasProviders(), false)
         assert.equal(clear.canOpen(), true)
         clear.setValue(null)
-        assert.equal(clear.canOpen(), false)
+        assert.equal(clear.canOpen(), true)
         clear.dispose()
       } finally { state.dispose() }
     `)

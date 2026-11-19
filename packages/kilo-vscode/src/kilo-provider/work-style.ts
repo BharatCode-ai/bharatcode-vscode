@@ -1,3 +1,4 @@
+import { configuration, affectsConfiguration } from "../configuration"
 import * as vscode from "vscode"
 import type { KiloConnectionService } from "../services/cli-backend/connection-service"
 import { getInitialWorkStyle, type WorkStyleState } from "../shared/work-style-presets"
@@ -6,7 +7,7 @@ import { handleWorkStyleApplyMessage } from "./work-style-apply-handler"
 export const WORK_STYLE_SETTING_KEYS = ["showTaskTimeline", "showAutoApprovalReason"] as const
 
 function getConfig() {
-  return vscode.workspace.getConfiguration("kilo-code.new")
+  return configuration("bharatcode-agent")
 }
 
 function isWorkStyleConfigured(): boolean {
@@ -27,7 +28,7 @@ export function isWorkStyleSetting(key: string): boolean {
 export function watchWorkStyleConfig(post: (message: unknown) => void, next?: vscode.Disposable) {
   const keys = ["agentWorkStyle", ...WORK_STYLE_SETTING_KEYS]
   const watcher = vscode.workspace.onDidChangeConfiguration((event) => {
-    if (keys.some((key) => event.affectsConfiguration(`kilo-code.new.${key}`))) post(getWorkStylePayload())
+    if (keys.some((key) => affectsConfiguration(event, `bharatcode-agent.${key}`))) post(getWorkStylePayload())
   })
   return next ? vscode.Disposable.from(watcher, next) : watcher
 }

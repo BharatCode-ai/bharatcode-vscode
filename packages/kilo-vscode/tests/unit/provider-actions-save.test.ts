@@ -543,6 +543,34 @@ describe("disconnectProvider", () => {
 })
 
 describe("fetchProviderData", () => {
+  it.each([true, false])(
+    "preserves Kilo auth readiness independently of BharatCode catalog results (recovered: %s)",
+    async (recovered) => {
+      const client = {
+        provider: {
+          list: async () => ({
+            data: {
+              all: [{ id: "bharatcode", models: recovered ? { glm: { id: "glm" } } : {} }],
+              connected: recovered ? ["bharatcode"] : [],
+              default: {},
+              failed: recovered ? [] : ["bharatcode"],
+              failures: recovered ? [] : [{ providerID: "bharatcode", kind: "http", status: 503 }],
+            },
+          }),
+        },
+        kilo: {
+          authStatus: async () => {
+            throw new Error("unrelated Kilo service unavailable")
+          },
+        },
+      } as unknown as Parameters<typeof fetchProviderData>[0]
+      const result = await fetchProviderData(client, "/workspace")
+      expect(result.ready).toBe(false)
+      expect(result.response.all[0].id).toBe("bharatcode")
+      expect(result.response.failures).toHaveLength(recovered ? 0 : 1)
+    },
+  )
+
   for (const item of [
     { name: "uses the allowed organization API default", recommended: "org/default", expected: "org/default" },
     { name: "uses the first allowed model when no default exists", recommended: undefined, expected: "org/first" },

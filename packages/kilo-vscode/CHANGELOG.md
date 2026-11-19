@@ -5,6 +5,13 @@ to 7.8.8 are inherited from the upstream Kilo Code project; Kilo-Org
 pull-request and commit links point to the original upstream repository and
 are kept as historical references.
 
+## 7.8.115
+
+- Recover from temporary BharatCode model-catalog failures with bounded retries, while honoring Retry-After and retaining the last working models.
+- Show loading, connection and sign-in errors clearly. Retry the catalog from the model selector without restarting a session or replaying tools.
+- Give BharatCode Agent its own commands, sidebar, panels and settings so it can coexist with other Kilo-derived extensions. Existing chats and sign-ins stay in place; saved preferences are copied without deleting the originals.
+- Scope shared keyboard shortcuts to BharatCode surfaces. Custom shortcuts that referenced `kilo-code.new.*` may need reassignment to `bharatcode-agent.*`; the BharatCode commands remain available in the Command Palette.
+
 ## 7.8.16
 
 ## 7.8.15

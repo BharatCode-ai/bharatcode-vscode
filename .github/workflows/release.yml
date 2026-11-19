@@ -7,8 +7,6 @@
 name: Release
 
 on:
-  push:
-    branches: [bc/main]
   workflow_dispatch:
 
 permissions:
@@ -145,45 +143,9 @@ jobs:
       - name: Audit vsixes + SHA256SUMS
         env:
           V: ${{ needs.cut.outputs.version }}
-        run: |
-          set -euo pipefail
-          python3 - <<'PY'
-          import json, os, zipfile, glob
-          V = os.environ["V"]
-          expected_binary = {
-              "win32-x64": "extension/bin/bharatcode.exe",
-              "win32-arm64": "extension/bin/bharatcode.exe",
-          }
-          files = sorted(glob.glob("packages/kilo-vscode/out/*.vsix"))
-          assert len(files) == 8, f"expected 8 vsixes, got {len(files)}"
-          for f in files:
-              base = os.path.basename(f)
-              prefix, suffix = "bharatcode-vscode-", f"-{V}.vsix"
-              assert base.startswith(prefix) and base.endswith(suffix), f"unexpected name {base}"
-              plat = base[len(prefix):-len(suffix)]
-              z = zipfile.ZipFile(f)
-              names = z.namelist()
-              maps = [n for n in names if n.endswith(".map")]
-              assert not maps, f"{plat}: {len(maps)} sourcemaps in zip"
-              want = expected_binary.get(plat, "extension/bin/bharatcode")
-              other = "extension/bin/bharatcode" if want.endswith(".exe") else "extension/bin/bharatcode.exe"
-              bins = [
-                  n for n in names
-                  if n.startswith("extension/bin/") and n.count("/") == 2
-                  and not n.endswith((".wasm", ".js"))
-                  and not any(t in n for t in ("tree-sitter", "console", "ffmpeg", "sandbox"))
-              ]
-              assert want in bins, f"{plat}: missing {want}, have {bins}"
-              assert other not in bins, f"{plat}: wrong-platform binary {other}"
-              lic = z.read("extension/LICENSE.txt").decode()
-              assert "BharatCode modifications" in lic and "Kilo Code" in lic, f"{plat}: license lines missing"
-              man = json.loads(z.read("extension/package.json"))
-              assert man["version"] == V, f"{plat}: version {man['version']} != {V}"
-              assert man["name"] == "bharatcode-vscode" and man["publisher"] == "thenabbu", f"{plat}: manifest identity"
-              print(f"{plat}: OK v{man['version']}")
-          PY
-          (cd packages/kilo-vscode/out && sha256sum *.vsix > SHA256SUMS)
-          cat packages/kilo-vscode/out/SHA256SUMS
+        run: >-
+          python3 packages/kilo-vscode/script/audit-vsix.py
+          --version "$V" --versioned --checksums
 
       - uses: actions/upload-artifact@v4
         with:

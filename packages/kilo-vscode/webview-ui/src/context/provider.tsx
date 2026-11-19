@@ -20,6 +20,8 @@ interface ProviderContextValue {
   defaults: Accessor<Record<string, string>>
   organizationId: Accessor<string | null | undefined>
   ready: Accessor<boolean>
+  /** The provider catalog request has settled, independently of Kilo auth readiness. */
+  catalogReady: Accessor<boolean>
   defaultSelection: Accessor<ModelSelection>
   models: Accessor<EnrichedModel[]>
   findModel: (selection: ModelSelection | null) => EnrichedModel | undefined
@@ -42,6 +44,7 @@ export const ProviderProvider: ParentComponent = (props) => {
   const [defaults, setDefaults] = createSignal<Record<string, string>>({})
   const [organizationId, setOrganizationId] = createSignal<string | null>()
   const [ready, setReady] = createSignal(false)
+  const [catalogReady, setCatalogReady] = createSignal(false)
   const [defaultSelection, setDefaultSelection] = createSignal<ModelSelection>(KILO_AUTO)
   const [authMethods, setAuthMethods] = createSignal<Record<string, ProviderAuthMethod[]>>({})
   const [authStates, setAuthStates] = createSignal<Record<string, ProviderAuthState>>({})
@@ -61,9 +64,24 @@ export const ProviderProvider: ParentComponent = (props) => {
   // Register handler immediately (not in onMount) so we never miss
   // a providersLoaded message that arrives before the DOM mount.
   const unsubscribe = vscode.onMessage((message: ExtensionMessage) => {
+    if (message.type === "providersRefreshing") {
+      setCatalogReady(false)
+      return
+    }
+    if (message.type === "providersLoadFailed") {
+      batch(() => {
+        setCatalogReady(true)
+        setFailures((prev) => [
+          ...prev.filter((item) => item.providerID !== message.failure.providerID),
+          message.failure,
+        ])
+      })
+      return
+    }
     if (message.type === "providersLoading") {
       batch(() => {
         setReady(false)
+        setCatalogReady(false)
         setOrganizationId(undefined)
         setProviders((prev) => {
           const next = { ...prev }
@@ -88,6 +106,7 @@ export const ProviderProvider: ParentComponent = (props) => {
       setDefaults(message.defaults)
       setOrganizationId(message.ready === false ? undefined : (message.organizationId ?? null))
       setReady(message.ready ?? true)
+      setCatalogReady(true)
       setDefaultSelection(message.defaultSelection)
       setAuthMethods(message.authMethods)
       setAuthStates(message.authStates)
@@ -128,6 +147,7 @@ export const ProviderProvider: ParentComponent = (props) => {
     defaults,
     organizationId,
     ready,
+    catalogReady,
     defaultSelection,
     models,
     findModel,

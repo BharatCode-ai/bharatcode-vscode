@@ -239,11 +239,6 @@ import type {
   KilocodeTeardownWorktreeResponses,
   KilocodeWakeupsErrors,
   KilocodeWakeupsResponses,
-  KiloEditErrors,
-  KiloEditResponses,
-  KiloFimErrors,
-  KiloFimResponse,
-  KiloFimResponses,
   KiloModelsImagesErrors,
   KiloModelsImagesResponses,
   KiloModelsTranscriptionsErrors,
@@ -358,6 +353,8 @@ import type {
   ProviderOauthAuthorizeResponses,
   ProviderOauthCallbackErrors,
   ProviderOauthCallbackResponses,
+  ProviderRefreshErrors,
+  ProviderRefreshResponses,
   PtyConnectErrors,
   PtyConnectResponses,
   PtyConnectTokenErrors,
@@ -4272,6 +4269,38 @@ export class Provider extends HeyApiClient {
     })
   }
 
+  /**
+   * Refresh a provider catalog
+   *
+   * Retry the BharatCode model catalog without interrupting sessions. Returns false on failure, cooldown, or an unsupported or disabled provider.
+   */
+  public refresh<ThrowOnError extends boolean = false>(
+    parameters: {
+      providerID: string
+      directory?: string
+      workspace?: string
+    },
+    options?: Options<never, ThrowOnError>,
+  ) {
+    const params = buildClientParams(
+      [parameters],
+      [
+        {
+          args: [
+            { in: "path", key: "providerID" },
+            { in: "query", key: "directory" },
+            { in: "query", key: "workspace" },
+          ],
+        },
+      ],
+    )
+    return (options?.client ?? this.client).post<ProviderRefreshResponses, ProviderRefreshErrors, ThrowOnError>({
+      url: "/provider/{providerID}/refresh",
+      ...options,
+      ...params,
+    })
+  }
+
   private _oauth?: Oauth
   get oauth(): Oauth {
     return (this._oauth ??= new Oauth({ client: this.client }))
@@ -7191,113 +7220,6 @@ export class Kilo extends HeyApiClient {
       url: "/kilo/modes",
       ...options,
       ...params,
-    })
-  }
-
-  /**
-   * FIM completion
-   *
-   * Proxy a Fill-in-the-Middle completion request to the Kilo Gateway
-   */
-  public fim<ThrowOnError extends boolean = false>(
-    parameters: {
-      directory?: string
-      workspace?: string
-      prefix: string
-      suffix: string
-      provider?: string
-      model?: string
-      maxTokens?: number
-      temperature?: number
-    },
-    options?: Options<never, ThrowOnError, KiloFimResponse>,
-  ) {
-    const params = buildClientParams(
-      [parameters],
-      [
-        {
-          args: [
-            { in: "query", key: "directory" },
-            { in: "query", key: "workspace" },
-            { in: "body", key: "prefix" },
-            { in: "body", key: "suffix" },
-            { in: "body", key: "provider" },
-            { in: "body", key: "model" },
-            { in: "body", key: "maxTokens" },
-            { in: "body", key: "temperature" },
-          ],
-        },
-      ],
-    )
-    return (options?.client ?? this.client).sse.post<KiloFimResponses, KiloFimErrors, ThrowOnError>({
-      url: "/kilo/fim",
-      ...options,
-      ...params,
-      headers: {
-        "Content-Type": "application/json",
-        ...options?.headers,
-        ...params.headers,
-      },
-    })
-  }
-
-  /**
-   * Next Edit completion
-   *
-   * Proxy a Mercury-style Next Edit request. The client supplies structured editor context; the gateway assembles the sentinel-tagged prompt and forwards to the upstream edit endpoint.
-   */
-  public edit<ThrowOnError extends boolean = false>(
-    parameters: {
-      directory?: string
-      workspace?: string
-      provider?: string
-      model?: string
-      maxTokens?: number
-      currentFilePath: string
-      currentFileContent: string
-      cursorLine: number
-      cursorCharacter: number
-      editableRegionStartLine: number
-      editableRegionEndLine: number
-      recentlyViewedSnippets: Array<{
-        filepath: string
-        content: string
-      }>
-      editDiffHistory: Array<string>
-    },
-    options?: Options<never, ThrowOnError>,
-  ) {
-    const params = buildClientParams(
-      [parameters],
-      [
-        {
-          args: [
-            { in: "query", key: "directory" },
-            { in: "query", key: "workspace" },
-            { in: "body", key: "provider" },
-            { in: "body", key: "model" },
-            { in: "body", key: "maxTokens" },
-            { in: "body", key: "currentFilePath" },
-            { in: "body", key: "currentFileContent" },
-            { in: "body", key: "cursorLine" },
-            { in: "body", key: "cursorCharacter" },
-            { in: "body", key: "editableRegionStartLine" },
-            { in: "body", key: "editableRegionEndLine" },
-            { in: "body", key: "recentlyViewedSnippets" },
-            { in: "body", key: "editDiffHistory" },
-          ],
-        },
-      ],
-    )
-    return (options?.client ?? this.client).post<KiloEditResponses, KiloEditErrors, ThrowOnError>({
-      url: "/kilo/edit",
-      ...options,
-      ...params,
-      headers: {
-        "Content-Type": "application/json",
-        ...options?.headers,
-        ...params.headers,
-      },
     })
   }
 

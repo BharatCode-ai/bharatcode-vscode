@@ -13451,6 +13451,36 @@ export type ProviderAuthResponses = {
 
 export type ProviderAuthResponse = ProviderAuthResponses[keyof ProviderAuthResponses]
 
+export type ProviderRefreshData = {
+  body?: never
+  path: {
+    providerID: string
+  }
+  query?: {
+    directory?: string
+    workspace?: string
+  }
+  url: "/provider/{providerID}/refresh"
+}
+
+export type ProviderRefreshErrors = {
+  /**
+   * Bad request
+   */
+  400: BadRequestError
+}
+
+export type ProviderRefreshError = ProviderRefreshErrors[keyof ProviderRefreshErrors]
+
+export type ProviderRefreshResponses = {
+  /**
+   * Whether the provider catalog refreshed successfully
+   */
+  200: boolean
+}
+
+export type ProviderRefreshResponse = ProviderRefreshResponses[keyof ProviderRefreshResponses]
+
 export type ProviderOauthAuthorizeData = {
   body?: {
     /**
@@ -16541,102 +16571,6 @@ export type KiloModesResponses = {
 }
 
 export type KiloModesResponse = KiloModesResponses[keyof KiloModesResponses]
-
-export type KiloFimData = {
-  body?: {
-    prefix: string
-    suffix: string
-    provider?: string
-    model?: string
-    maxTokens?: number
-    temperature?: number
-  }
-  path?: never
-  query?: {
-    directory?: string
-    workspace?: string
-  }
-  url: "/kilo/fim"
-}
-
-export type KiloFimErrors = {
-  /**
-   * BadRequest | InvalidRequestError
-   */
-  400: EffectHttpApiErrorBadRequest | InvalidRequestError
-}
-
-export type KiloFimError = KiloFimErrors[keyof KiloFimErrors]
-
-export type KiloFimResponses = {
-  /**
-   * Streaming FIM completion response
-   */
-  200: {
-    choices?: Array<{
-      delta?: {
-        content?: string
-      }
-      text?: string
-    }>
-    usage?: {
-      prompt_tokens?: number
-      completion_tokens?: number
-    }
-    cost?: number
-  }
-}
-
-export type KiloFimResponse = KiloFimResponses[keyof KiloFimResponses]
-
-export type KiloEditData = {
-  body?: {
-    provider?: string
-    model?: string
-    maxTokens?: number
-    currentFilePath: string
-    currentFileContent: string
-    cursorLine: number
-    cursorCharacter: number
-    editableRegionStartLine: number
-    editableRegionEndLine: number
-    recentlyViewedSnippets: Array<{
-      filepath: string
-      content: string
-    }>
-    editDiffHistory: Array<string>
-  }
-  path?: never
-  query?: {
-    directory?: string
-    workspace?: string
-  }
-  url: "/kilo/edit"
-}
-
-export type KiloEditErrors = {
-  /**
-   * BadRequest | InvalidRequestError
-   */
-  400: EffectHttpApiErrorBadRequest | InvalidRequestError
-}
-
-export type KiloEditError = KiloEditErrors[keyof KiloEditErrors]
-
-export type KiloEditResponses = {
-  /**
-   * Next Edit completion
-   */
-  200: {
-    content: string
-    usage?: {
-      prompt_tokens?: number
-      completion_tokens?: number
-    }
-  }
-}
-
-export type KiloEditResponse = KiloEditResponses[keyof KiloEditResponses]
 
 export type KiloAudioTranscriptionsData = {
   body?: {

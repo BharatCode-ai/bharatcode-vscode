@@ -53,6 +53,22 @@ export const anacondaDesktopDict = {
 } as const
 
 export const dict = {
+  "bharatcode.catalog.loading": "Loading BharatCode models…",
+  "bharatcode.catalog.unavailable": "Models unavailable",
+  "bharatcode.catalog.network":
+    "Couldn’t reach the model catalog. Check your connection and retry. Your chats and sign-in are unchanged.",
+  "bharatcode.catalog.http":
+    "The model catalog returned HTTP {{status}}. Retry in a moment; you don’t need to sign in again.",
+  "bharatcode.catalog.schema":
+    "The model catalog returned an unexpected response. Retry; if it continues, share the BharatCode Agent output log.",
+  "bharatcode.catalog.unauthorized":
+    "BharatCode could not verify your sign-in. Sign in again; your chats will stay here.",
+  "bharatcode.catalog.unauthenticated":
+    "Sign in with BharatCode to load your models. Your existing chats will stay here.",
+  "bharatcode.catalog.empty":
+    "BharatCode returned no available models. Retry the catalog; your chats and sign-in are unchanged.",
+  "bharatcode.catalog.signIn": "Sign in with BharatCode",
+  "bharatcode.catalog.retry": "Retry model catalog",
   ...anacondaDesktopDict,
   ...cloudProviderDict,
   "task.swarm.title": "Board",
@@ -703,10 +719,9 @@ export const dict = {
 
   "session.messages.welcome":
     "BharatCode runs an agent in this panel, powered by your BharatCode models. Ask it to build features, fix bugs, or explain your codebase.",
-  "session.messages.connect": "Connect BharatCode",
+  "session.messages.connect": "Sign in with BharatCode",
   "session.onboarding.title": "Set up BharatCode",
-  "session.onboarding.body":
-    "Sign in with your browser or paste an API key - either works. Your account is stored by the extension, never in settings.",
+  "session.onboarding.body": "Approve access on the BharatCode website, then return to VS Code.",
   "session.onboarding.hint": "BharatCode is the agent in this panel. Connect it once and start asking.",
   "session.workspaceScope.description": "BharatCode chat uses only “{{folder}}”, the first folder in this workspace.",
   "session.workspaceScope.alternatives":

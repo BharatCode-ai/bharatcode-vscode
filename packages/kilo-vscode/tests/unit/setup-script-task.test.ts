@@ -406,7 +406,11 @@ describe("setupTaskIdentity", () => {
 
     expect(a.definition).not.toEqual(b.definition)
     expect(a.name).not.toBe(b.name)
-    expect(a.definition).toEqual({ type: "kilo-worktree-setup", script: "sh", worktree: "/repo/.kilo/worktrees/a" })
+    expect(a.definition).toEqual({
+      type: "bharatcode-agent.worktree-setup",
+      script: "sh",
+      worktree: "/repo/.kilo/worktrees/a",
+    })
     expect(a.name).toBe("Worktree Setup (a)")
   })
 })

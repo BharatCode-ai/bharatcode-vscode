@@ -1,14 +1,15 @@
+import { configuration } from "./configuration"
 import * as vscode from "vscode"
 
-const CONFIG = "kilo-code.new"
+const CONFIG = "bharatcode-agent"
 const KEY = "diff.renderMarkdown"
 
 export function getDiffMarkdownRender(): boolean {
-  return vscode.workspace.getConfiguration(CONFIG).get<boolean>(KEY, false)
+  return configuration(CONFIG).get<boolean>(KEY, false)
 }
 
 export async function setDiffMarkdownRender(value: boolean): Promise<void> {
-  await vscode.workspace.getConfiguration(CONFIG).update(KEY, value, vscode.ConfigurationTarget.Global)
+  await configuration(CONFIG).update(KEY, value, vscode.ConfigurationTarget.Global)
 }
 
 export type DiffStyle = "unified" | "split"
@@ -20,11 +21,11 @@ export type DiffStyle = "unified" | "split"
  * diffs open split, permission-dock expand opens unified).
  */
 export function getUserDiffStyle(): DiffStyle | undefined {
-  const value = vscode.workspace.getConfiguration(CONFIG).get<DiffStyle>("diff.style")
+  const value = configuration(CONFIG).get<DiffStyle>("diff.style")
   if (value === "unified" || value === "split") return value
   return undefined
 }
 
 export async function setUserDiffStyle(style: DiffStyle): Promise<void> {
-  await vscode.workspace.getConfiguration(CONFIG).update("diff.style", style, vscode.ConfigurationTarget.Global)
+  await configuration(CONFIG).update("diff.style", style, vscode.ConfigurationTarget.Global)
 }

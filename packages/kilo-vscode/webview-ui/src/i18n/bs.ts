@@ -760,10 +760,9 @@ export const dict = {
 
   "session.messages.welcome":
     "BharatCode pokreće agenta u ovom panelu, na vašim BharatCode modelima. Zamolite ga da napravi funkciju, ispravi grešku ili objasni vašu bazu koda.",
-  "session.messages.connect": "Poveži BharatCode",
+  "session.messages.connect": "Prijavi se putem BharatCode",
   "session.onboarding.title": "Podesi BharatCode",
-  "session.onboarding.body":
-    "Prijavite se u pregledniku ili zalijepite API ključ — oboje radi. Račun čuva ekstenzija, nikad postavke.",
+  "session.onboarding.body": "Odobri pristup na stranici BharatCode, pa se vrati u VS Code.",
   "session.onboarding.hint": "BharatCode je agent u ovom panelu. Povežite ga jednom i počnite.",
   "session.workspaceScope.description":
     "BharatCode razgovor koristi samo „{{folder}}“, prvi folder u ovom radnom prostoru.",

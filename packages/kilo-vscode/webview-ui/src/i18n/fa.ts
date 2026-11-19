@@ -713,10 +713,9 @@ export const dict = {
 
   "session.messages.welcome":
     "BharatCode یک عامل در این پنل اجرا می‌کند که با مدل‌های BharatCode شما کار می‌کند. از آن بخواهید قابلیت بسازد، باگ رفع کند یا کد شما را توضیح دهد.",
-  "session.messages.connect": "اتصال به BharatCode",
+  "session.messages.connect": "ورود با BharatCode",
   "session.onboarding.title": "راه‌اندازی BharatCode",
-  "session.onboarding.body":
-    "از طریق مرورگر وارد شوید یا کلید API را بچسبانید — هر دو کار می‌کند. حساب توسط افزونه ذخیره می‌شود، نه در تنظیمات.",
+  "session.onboarding.body": "دسترسی را در وب‌سایت BharatCode تأیید کنید و به VS Code برگردید.",
   "session.onboarding.hint": "BharatCode همان عاملِ این پنل است. یک بار وصلش کنید و شروع کنید.",
   "session.workspaceScope.description":
     "گفتگوی BharatCode فقط از «{{folder}}»، اولین پوشه در این فضای کاری، استفاده می‌کند.",

@@ -1,3 +1,4 @@
+import { configuration, affectsConfiguration } from "../configuration"
 import * as vscode from "vscode"
 import type { Event, KiloClient } from "@kilocode/sdk/v2/client"
 import { replyOnce } from "../kilo-provider/handlers/permission-handler"
@@ -24,7 +25,7 @@ export interface AutoApproveController {
   onChange(listener: (active: boolean) => void): { dispose(): void }
 }
 
-const CONFIG = "kilo-code.new.autoApprove"
+const CONFIG = "bharatcode-agent.autoApprove"
 const KEY = "enabled"
 
 /**
@@ -53,7 +54,7 @@ export function registerToggleAutoApprove(
     active = next
     generation++
     notify()
-    await vscode.workspace.getConfiguration(CONFIG).update(KEY, active, target())
+    await configuration(CONFIG).update(KEY, active, target())
   }
 
   const toggle = async () => {
@@ -98,7 +99,7 @@ export function registerToggleAutoApprove(
 
   context.subscriptions.push(
     vscode.workspace.onDidChangeConfiguration((event) => {
-      if (!event.affectsConfiguration(`${CONFIG}.${KEY}`)) return
+      if (!affectsConfiguration(event, `${CONFIG}.${KEY}`)) return
       const next = readActive()
       if (next === active) return
       active = next
@@ -107,7 +108,7 @@ export function registerToggleAutoApprove(
     }),
   )
 
-  context.subscriptions.push(vscode.commands.registerCommand("kilo-code.new.toggleAutoApprove", toggle))
+  context.subscriptions.push(vscode.commands.registerCommand("bharatcode-agent.toggleAutoApprove", toggle))
 
   return {
     active: () => active,
@@ -128,11 +129,11 @@ export function registerToggleAutoApprove(
 }
 
 function readActive(): boolean {
-  return vscode.workspace.getConfiguration(CONFIG).get(KEY, false)
+  return configuration(CONFIG).get(KEY, false)
 }
 
 function target(): vscode.ConfigurationTarget {
-  const info = vscode.workspace.getConfiguration(CONFIG).inspect<boolean>(KEY)
+  const info = configuration(CONFIG).inspect<boolean>(KEY)
   if (info?.workspaceFolderValue !== undefined) return vscode.ConfigurationTarget.WorkspaceFolder
   if (info?.workspaceValue !== undefined) return vscode.ConfigurationTarget.Workspace
   return vscode.ConfigurationTarget.Global

@@ -1,3 +1,4 @@
+import { configuration } from "../configuration"
 import * as vscode from "vscode"
 import type { Config } from "@kilocode/sdk/v2/client"
 import type { KiloConnectionService } from "../services/cli-backend/connection-service"
@@ -14,7 +15,7 @@ function inspect(config: vscode.WorkspaceConfiguration, key: string): WorkStyleS
 }
 
 async function apply(connection: KiloConnectionService, directory: string, style: WorkStyle) {
-  const settings = vscode.workspace.getConfiguration("kilo-code.new")
+  const settings = configuration("bharatcode-agent")
   return applyWorkStyle(style, {
     read: async () => {
       const client = await connection.getClientAsync(directory)

@@ -245,6 +245,8 @@ export interface SelectSourceRequest {
 
 export interface RequestProvidersMessage {
   type: "requestProviders"
+  /** Retry only the catalog; never reset a running backend session. */
+  refresh?: boolean
 }
 
 export interface CompactRequest {
@@ -289,7 +291,7 @@ export interface OpenProfilePanelRequest {
   type: "openProfilePanel"
 }
 
-/** Opens the BharatCode connect picker (OAuth or API key) from the chat welcome screen. */
+/** Starts website sign-in from the welcome screen or provider settings. */
 export interface ConnectBharatcodeRequest {
   type: "connectBharatcode"
 }

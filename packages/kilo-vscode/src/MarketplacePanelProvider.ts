@@ -1,3 +1,4 @@
+import { configuration } from "./configuration"
 import * as os from "os"
 import * as vscode from "vscode"
 import type { GlobalEvent, SessionStatus } from "@kilocode/sdk/v2/client"
@@ -34,7 +35,7 @@ interface MarketplaceMessage {
 }
 
 export class MarketplacePanelProvider implements vscode.Disposable {
-  public static readonly viewType = "kilo-code.new.marketplacePanel"
+  public static readonly viewType = "bharatcode-agent.marketplacePanel"
 
   private panel: vscode.WebviewPanel | undefined
   private project: string | null = null
@@ -201,7 +202,7 @@ export class MarketplacePanelProvider implements vscode.Disposable {
     if (!this.ready) return
     const info = this.connection.getServerInfo()
     if (info) {
-      const cfg = vscode.workspace.getConfiguration("kilo-code.new")
+      const cfg = configuration("bharatcode-agent")
       this.post({
         type: "ready",
         serverInfo: info,
