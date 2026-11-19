@@ -5,7 +5,7 @@ to 7.8.8 are inherited from the upstream Kilo Code project; Kilo-Org
 pull-request and commit links point to the original upstream repository and
 are kept as historical references.
 
-## 7.8.114
+## 7.8.115
 
 - Recover from temporary BharatCode model-catalog failures with bounded retries, while honoring Retry-After and retaining the last working models.
 - Show loading, connection and sign-in errors clearly. Retry the catalog from the model selector without restarting a session or replaying tools.

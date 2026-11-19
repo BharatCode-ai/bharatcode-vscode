@@ -2,7 +2,7 @@
   "name": "bharatcode-agent",
   "displayName": "BharatCode Agent",
   "description": "The VS Code extension for BharatCode (bharatcode.ai). Sign in and the agent runs - the provider, endpoint and models are configured for you, so there is nothing to set up by hand.",
-  "version": "7.8.114",
+  "version": "7.8.115",
   "icon": "assets/icons/logo-outline-black.png",
   "galleryBanner": {
     "color": "#111113",
