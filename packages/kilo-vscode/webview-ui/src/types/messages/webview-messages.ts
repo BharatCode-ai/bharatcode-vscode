@@ -245,6 +245,8 @@ export interface SelectSourceRequest {
 
 export interface RequestProvidersMessage {
   type: "requestProviders"
+  /** Retry only the catalog; never reset a running backend session. */
+  refresh?: boolean
 }
 
 export interface CompactRequest {

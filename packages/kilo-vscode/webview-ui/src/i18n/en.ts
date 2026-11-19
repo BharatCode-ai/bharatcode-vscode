@@ -53,6 +53,22 @@ export const anacondaDesktopDict = {
 } as const
 
 export const dict = {
+  "bharatcode.catalog.loading": "Loading BharatCode models…",
+  "bharatcode.catalog.unavailable": "Models unavailable",
+  "bharatcode.catalog.network":
+    "Couldn’t reach the model catalog. Check your connection and retry. Your chats and sign-in are unchanged.",
+  "bharatcode.catalog.http":
+    "The model catalog returned HTTP {{status}}. Retry in a moment; you don’t need to sign in again.",
+  "bharatcode.catalog.schema":
+    "The model catalog returned an unexpected response. Retry; if it continues, share the BharatCode Agent output log.",
+  "bharatcode.catalog.unauthorized":
+    "BharatCode could not verify your sign-in. Sign in again; your chats will stay here.",
+  "bharatcode.catalog.unauthenticated":
+    "Sign in with BharatCode to load your models. Your existing chats will stay here.",
+  "bharatcode.catalog.empty":
+    "BharatCode returned no available models. Retry the catalog; your chats and sign-in are unchanged.",
+  "bharatcode.catalog.signIn": "Sign in with BharatCode",
+  "bharatcode.catalog.retry": "Retry model catalog",
   ...anacondaDesktopDict,
   ...cloudProviderDict,
   "task.swarm.title": "Board",

@@ -1,3 +1,4 @@
+import { configuration } from "./configuration"
 import * as path from "path"
 import { existsSync, readFileSync } from "fs"
 import * as vscode from "vscode"
@@ -408,7 +409,7 @@ function withGlobalSpeechToTextMessage(message: unknown): unknown {
 }
 
 export class KiloProvider implements vscode.WebviewViewProvider, TelemetryPropertiesProvider {
-  public static readonly viewType = "kilo-code.SidebarProvider"
+  public static readonly viewType = "bharatcode-agent.SidebarProvider"
   private readonly instanceId = crypto.randomUUID()
 
   private webview: vscode.Webview | null = null
@@ -432,6 +433,7 @@ export class KiloProvider implements vscode.WebviewViewProvider, TelemetryProper
   private storedProviderKeys: Record<string, StoredProviderKey> = {}
   /** Coalesce provider refreshes — at most one follow-up rerun when a request lands mid-flight. */
   private providersRefresh: Promise<void> | null = null
+  private catalogRefresh: { promise: Promise<void>; current: () => boolean } | null = null
   private providersQueued = false
   private providersRetry = false
   private providersGeneration = 0
@@ -783,10 +785,10 @@ export class KiloProvider implements vscode.WebviewViewProvider, TelemetryProper
 
   private openMarketplacePanel(directory: unknown): void {
     if (typeof directory === "string" && directory) {
-      vscode.commands.executeCommand("kilo-code.new.marketplaceButtonClicked", directory)
+      vscode.commands.executeCommand("bharatcode-agent.marketplaceButtonClicked", directory)
       return
     }
-    vscode.commands.executeCommand("kilo-code.new.marketplaceButtonClicked", this.projectDirectory)
+    vscode.commands.executeCommand("bharatcode-agent.marketplaceButtonClicked", this.projectDirectory)
   }
 
   // Strip metadata unused by the webview to keep session switches fast.
@@ -864,7 +866,7 @@ export class KiloProvider implements vscode.WebviewViewProvider, TelemetryProper
 
     // Re-send ready so the webview can recover after refresh.
     if (serverInfo) {
-      const langConfig = vscode.workspace.getConfiguration("kilo-code.new")
+      const langConfig = configuration("bharatcode-agent")
       this.postMessage({
         type: "ready",
         serverInfo,
@@ -933,7 +935,7 @@ export class KiloProvider implements vscode.WebviewViewProvider, TelemetryProper
   private setSidebarVisible(visible: boolean): void {
     this.setStatsVisible(visible)
     this.setStreamVisibility(visible)
-    vscode.commands.executeCommand("setContext", "kilo-code.new.sidebarVisible", visible)
+    vscode.commands.executeCommand("setContext", "bharatcode-agent.sidebarVisible", visible)
     if (!visible) this.opts.onHidden?.()
     if (!visible && this.opts.focusContext) {
       void vscode.commands.executeCommand("setContext", this.opts.focusContext, false)
@@ -1287,7 +1289,7 @@ export class KiloProvider implements vscode.WebviewViewProvider, TelemetryProper
           board: (msg) => this.handleBoardMessage(msg),
           cancelBackgroundJob: (jobID, sessionID, requestID) => this.cancelBackgroundJob(jobID, sessionID, requestID),
           promoteBackgroundJob: (jobID, sessionID) => this.promoteBackgroundJob(jobID, sessionID),
-          caffeination: () => void vscode.commands.executeCommand("kilo-code.new.toggleCaffeination"),
+          caffeination: () => void vscode.commands.executeCommand("bharatcode-agent.toggleCaffeination"),
         })
       ) {
         return
@@ -1308,10 +1310,10 @@ export class KiloProvider implements vscode.WebviewViewProvider, TelemetryProper
       if (
         await handleSidebarWorktreeMessage(message, {
           post: (msg) => this.postMessage(msg),
-          openAgentManager: () => vscode.commands.executeCommand("kilo-code.new.agentManagerOpen"),
-          openAdvancedWorktree: () => vscode.commands.executeCommand("kilo-code.new.agentManager.advancedWorktree"),
+          openAgentManager: () => vscode.commands.executeCommand("bharatcode-agent.agentManagerOpen"),
+          openAdvancedWorktree: () => vscode.commands.executeCommand("bharatcode-agent.agentManager.advancedWorktree"),
           openChanges: (sessionId?: string, turnId?: string) => this.openChanges(sessionId, turnId),
-          openProfile: () => vscode.commands.executeCommand("kilo-code.new.profileButtonClicked"),
+          openProfile: () => vscode.commands.executeCommand("bharatcode-agent.profileButtonClicked"),
           currentSessionId: this.currentSession?.id,
           createWorktree: async (baseBranch, branchName) => {
             await this.createWorktreeHandler?.(baseBranch, branchName)
@@ -1431,7 +1433,7 @@ export class KiloProvider implements vscode.WebviewViewProvider, TelemetryProper
         // BharatCode connect entry point for the webview
         // (the welcome screen has no other way to start a new user).
         case "connectBharatcode":
-          void vscode.commands.executeCommand("kilo-code.new.setBharatcodeKey")
+          void vscode.commands.executeCommand("bharatcode-agent.setBharatcodeKey")
           break
         case "cancelLogin":
           this.loginAttempt++
@@ -1446,7 +1448,7 @@ export class KiloProvider implements vscode.WebviewViewProvider, TelemetryProper
           }
           break
         case "openSettingsPanel":
-          vscode.commands.executeCommand("kilo-code.new.settingsButtonClicked", message.tab, message.projectId)
+          vscode.commands.executeCommand("bharatcode-agent.settingsButtonClicked", message.tab, message.projectId)
           break
         case "openVSCodeSettings":
           vscode.commands.executeCommand("workbench.action.openSettings", message.query)
@@ -1473,7 +1475,7 @@ export class KiloProvider implements vscode.WebviewViewProvider, TelemetryProper
           break
         case "openSubAgentViewer":
           vscode.commands.executeCommand(
-            "kilo-code.new.openSubAgentViewer",
+            "bharatcode-agent.openSubAgentViewer",
             message.sessionID,
             message.title,
             this.getWorkspaceDirectory(message.parentSessionID),
@@ -1482,7 +1484,8 @@ export class KiloProvider implements vscode.WebviewViewProvider, TelemetryProper
         case "saveImage":
           return saveImage(this.getWorkspaceDirectory(this.currentSession?.id), message)
         case "requestProviders":
-          this.fetchAndSendProviders().catch((e) => console.error("[BharatCode] fetchAndSendProviders failed:", e))
+          if (message.refresh === true) void this.refreshBharatcodeCatalog()
+          else this.fetchAndSendProviders().catch((e) => console.error("[BharatCode] fetchAndSendProviders failed:", e))
           break
         case "connectProvider":
         case "authorizeProviderOAuth":
@@ -1594,15 +1597,17 @@ export class KiloProvider implements vscode.WebviewViewProvider, TelemetryProper
           break
         case "openSettingsTab":
           if (message.tab === "indexing") {
-            await vscode.commands.executeCommand("kilo-code.new.openIndexingSettings")
+            await vscode.commands.executeCommand("bharatcode-agent.openIndexingSettings")
           } else if (message.tab === "agentBehaviour" && message.subtab === "mcpServers") {
-            await vscode.commands.executeCommand("kilo-code.new.openMcpSettings", message.focus)
+            await vscode.commands.executeCommand("bharatcode-agent.openMcpSettings", message.focus)
           }
           break
         case "setLanguage":
-          await vscode.workspace
-            .getConfiguration("kilo-code.new")
-            .update("language", message.locale || undefined, vscode.ConfigurationTarget.Global)
+          await configuration("bharatcode-agent").update(
+            "language",
+            message.locale || undefined,
+            vscode.ConfigurationTarget.Global,
+          )
           this.connectionService.notifyLanguageChanged(message.locale as string)
           break
         case "requestFileSearch":
@@ -1877,7 +1882,7 @@ export class KiloProvider implements vscode.WebviewViewProvider, TelemetryProper
       this.diffViewerProvider.openFromCommand(args)
       return
     }
-    await vscode.commands.executeCommand("kilo-code.new.showChanges", args)
+    await vscode.commands.executeCommand("bharatcode-agent.showChanges", args)
   }
 
   private handleEditorOpenMessage(message: Parameters<typeof handleEditorAction>[0]): boolean {
@@ -2132,7 +2137,7 @@ export class KiloProvider implements vscode.WebviewViewProvider, TelemetryProper
       this.connectionState = this.connectionService.getConnectionState()
 
       if (serverInfo) {
-        const langConfig = vscode.workspace.getConfiguration("kilo-code.new")
+        const langConfig = configuration("bharatcode-agent")
         this.postMessage({
           type: "ready",
           serverInfo,
@@ -2817,6 +2822,43 @@ export class KiloProvider implements vscode.WebviewViewProvider, TelemetryProper
     this.postMessage({ type: "providersLoading" })
   }
 
+  /** Explicit catalog-only retry, coalesced across duplicate webview clicks. */
+  private refreshBharatcodeCatalog(): Promise<void> {
+    if (this.catalogRefresh?.current()) return this.catalogRefresh.promise
+    const client = this.client
+    const directory = this.getWorkspaceDirectory()
+    let generation = this.providersGeneration
+    const current = () =>
+      client === this.client &&
+      generation === this.providersGeneration &&
+      sameDirectory(directory, this.getWorkspaceDirectory())
+    this.postMessage({ type: "providersRefreshing" })
+    const task = (async () => {
+      if (!client) {
+        this.providersRetry = true
+        this.postMessage({ type: "providersLoadFailed", failure: { providerID: "bharatcode", kind: "network" } })
+        return
+      }
+      try {
+        // A catalog retry must never dispose the backend or replay a running tool.
+        await client.provider.refresh({ providerID: "bharatcode", directory }, { throwOnError: true })
+        if (!current()) return
+        const refresh = this.fetchAndSendProviders()
+        // Keep duplicate clicks coalesced through our own provider-list generation.
+        generation = this.providersGeneration
+        await refresh
+      } catch {
+        if (!current()) return
+        this.postMessage({ type: "providersLoadFailed", failure: { providerID: "bharatcode", kind: "network" } })
+      }
+    })()
+    const done = task.finally(() => {
+      if (this.catalogRefresh?.promise === done) this.catalogRefresh = null
+    })
+    this.catalogRefresh = { promise: done, current }
+    return done
+  }
+
   /** Fetch providers and send to webview. Coalesced: at most one in-flight + one queued. */
   private async fetchAndSendProviders(): Promise<void> {
     const next = ++this.providersGeneration
@@ -2836,6 +2878,7 @@ export class KiloProvider implements vscode.WebviewViewProvider, TelemetryProper
           if (!this.cachedProvidersMessage) this.providersRetry = true
           if (this.cachedProvidersMessage && generation === this.providersGeneration)
             this.postMessage(this.cachedProvidersMessage)
+          else this.postMessage({ type: "providersLoadFailed", failure: { providerID: "bharatcode", kind: "network" } })
           return
         }
         try {
@@ -2847,7 +2890,7 @@ export class KiloProvider implements vscode.WebviewViewProvider, TelemetryProper
             continue
           }
           this.storedProviderKeys = storedKeys
-          const settings = vscode.workspace.getConfiguration("kilo-code.new.model")
+          const settings = configuration("bharatcode-agent.model")
           const message = {
             type: "providersLoaded",
             providers: indexProvidersById(response.all),
@@ -2881,6 +2924,7 @@ export class KiloProvider implements vscode.WebviewViewProvider, TelemetryProper
           // Keep backing off while the last loaded Kilo catalog was unavailable.
           const last = this.cachedProvidersMessage as { kiloUnavailable?: boolean } | null
           this.catalogRetry.update(last?.kiloUnavailable === true)
+          this.postMessage({ type: "providersLoadFailed", failure: { providerID: "bharatcode", kind: "network" } })
           console.error("[BharatCode] KiloProvider: Failed to fetch providers:", error)
         }
         if (!this.providersQueued) return
@@ -3660,7 +3704,7 @@ export class KiloProvider implements vscode.WebviewViewProvider, TelemetryProper
 
   /** Read attention settings from VS Code config and push to webview. */
   private sendNotificationSettings(): void {
-    const attention = vscode.workspace.getConfiguration("kilo-code.new.attention")
+    const attention = configuration("bharatcode-agent.attention")
     this.postMessage({
       type: "notificationSettingsLoaded",
       settings: {
@@ -4340,23 +4384,21 @@ export class KiloProvider implements vscode.WebviewViewProvider, TelemetryProper
   }
 
   private maxCostSetting(): number {
-    return this.setMaxCost(vscode.workspace.getConfiguration("kilo-code.new").get<number>("maxCost", 0))
+    return this.setMaxCost(configuration("bharatcode-agent").get<number>("maxCost", 0))
   }
 
   private commitMessageLanguageSetting(): string {
-    return vscode.workspace.getConfiguration("kilo-code.new").get<string>("languageCommitMessage", "sync")
+    return configuration("bharatcode-agent").get<string>("languageCommitMessage", "sync")
   }
 
   private claudeMigrationSetting(): boolean {
-    return vscode.workspace.getConfiguration("kilo-code.new.experimental").get<boolean>("claudeMigration", false)
+    return configuration("bharatcode-agent.experimental").get<boolean>("claudeMigration", false)
   }
   private conversationPromptHistorySetting(): boolean {
-    return vscode.workspace
-      .getConfiguration("kilo-code.new.experimental")
-      .get<boolean>("conversationPromptHistory", false)
+    return configuration("bharatcode-agent.experimental").get<boolean>("conversationPromptHistory", false)
   }
   private browserAutomationSetting(): boolean {
-    return vscode.workspace.getConfiguration("kilo-code.new.experimental").get<boolean>("browserAutomation", false)
+    return configuration("bharatcode-agent.experimental").get<boolean>("browserAutomation", false)
   }
 
   private async sendIndexingSettings(projectId?: string) {
@@ -4432,7 +4474,7 @@ export class KiloProvider implements vscode.WebviewViewProvider, TelemetryProper
   }
 
   private configSettings() {
-    const naming = vscode.workspace.getConfiguration("kilo-code.new.agentManager")
+    const naming = configuration("bharatcode-agent.agentManager")
     return {
       maxCost: this.maxCostSetting(),
       languageCommitMessage: this.commitMessageLanguageSetting(),
@@ -5121,9 +5163,7 @@ export class KiloProvider implements vscode.WebviewViewProvider, TelemetryProper
   private async handleUpdateSetting(key: string, value: unknown): Promise<void> {
     if (key === "maxCost") {
       const normalized = this.setMaxCost(value)
-      await vscode.workspace
-        .getConfiguration("kilo-code.new")
-        .update("maxCost", normalized, vscode.ConfigurationTarget.Global)
+      await configuration("bharatcode-agent").update("maxCost", normalized, vscode.ConfigurationTarget.Global)
       for (const sid of this.trackedSessionIds) {
         const oldLimit = this.activeAlerts.get(sid)
         if (oldLimit !== undefined) {
@@ -5138,7 +5178,7 @@ export class KiloProvider implements vscode.WebviewViewProvider, TelemetryProper
     const { section, leaf } = buildSettingPath(key)
     if (section === "indexing" && !validIndexingSetting(leaf, value)) return
     if (section === "chat" && !validChatSetting(leaf, value)) return
-    const config = vscode.workspace.getConfiguration(`kilo-code.new${section ? `.${section}` : ""}`)
+    const config = configuration(`bharatcode-agent${section ? `.${section}` : ""}`)
     // Normalize a webview-side clear to `undefined` so VS Code removes the
     // key from settings.json rather than persisting a literal `null`. This
     // lets the runtime fall back to the resolved default.
@@ -5148,9 +5188,9 @@ export class KiloProvider implements vscode.WebviewViewProvider, TelemetryProper
   }
 
   /**
-   * Reset all "kilo-code.new.*" extension settings to their defaults by reading
+   * Reset all "bharatcode-agent.*" extension settings to their defaults by reading
    * contributes.configuration from the extension's package.json at runtime.
-   * Only resets settings under the "kilo-code.new." namespace to avoid touching
+   * Only resets settings under the "bharatcode-agent." namespace to avoid touching
    * settings from the previous version of the extension which shares the same
    * extension ID and "kilo-code.*" namespace.
    */
@@ -5162,7 +5202,7 @@ export class KiloProvider implements vscode.WebviewViewProvider, TelemetryProper
     )
     if (confirmed !== "Reset") return
 
-    const prefix = "kilo-code.new."
+    const prefix = "bharatcode-agent."
     const ext = vscode.extensions.getExtension(EXTENSION_ID)
     const properties = ext?.packageJSON?.contributes?.configuration?.properties as Record<string, unknown> | undefined
     if (!properties) return
@@ -5172,7 +5212,7 @@ export class KiloProvider implements vscode.WebviewViewProvider, TelemetryProper
       const parts = key.split(".")
       const section = parts.slice(0, -1).join(".")
       const leaf = parts[parts.length - 1]!
-      const config = vscode.workspace.getConfiguration(section)
+      const config = configuration(section)
       await config.update(leaf, undefined, vscode.ConfigurationTarget.Global)
     }
 
@@ -5211,7 +5251,7 @@ export class KiloProvider implements vscode.WebviewViewProvider, TelemetryProper
    * Read the current browser automation settings and push them to the webview.
    */
   private sendBrowserSettings(): void {
-    const config = vscode.workspace.getConfiguration("kilo-code.new.browserAutomation")
+    const config = configuration("bharatcode-agent.browserAutomation")
     this.postMessage({
       type: "browserSettingsLoaded",
       settings: {
@@ -5226,7 +5266,7 @@ export class KiloProvider implements vscode.WebviewViewProvider, TelemetryProper
    * Read the current Claude Code compatibility setting and push it to the webview.
    */
   private sendClaudeCompatSetting(): void {
-    const enabled = vscode.workspace.getConfiguration("kilo-code.new").get<boolean>("claudeCodeCompat", false)
+    const enabled = configuration("bharatcode-agent").get<boolean>("claudeCodeCompat", false)
     this.postMessage({
       type: "claudeCompatSettingLoaded",
       enabled: enabled ?? false,
@@ -6195,7 +6235,7 @@ export class KiloProvider implements vscode.WebviewViewProvider, TelemetryProper
     return buildWebviewHtml(webview, {
       // The rail follows the physical workbench edge. RTL text direction must not move it between chat and code.
       sidebar: sidebar
-        ? vscode.workspace.getConfiguration("workbench").get("sideBar.location") === "right"
+        ? configuration("workbench").get("sideBar.location") === "right"
           ? "right"
           : "left"
         : undefined,

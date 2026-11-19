@@ -112,6 +112,7 @@ const MockProviderProvider: ParentComponent<{ kiloAuth?: boolean; training?: boo
     defaults: () => ({}),
     organizationId: () => null,
     ready: () => true,
+    catalogReady: () => true,
     defaultSelection: () => ({ providerID: "kilo", modelID: "anthropic/claude-sonnet-4-6" }),
     models,
     findModel: (sel: any) => _findModel(models(), sel),

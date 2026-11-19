@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     env:
-      KILO_VERSION: 7.8.113
+      KILO_VERSION: 7.8.114
       KILO_CLI_TARGETS: win32-x64,win32-arm64,linux-x64,linux-arm64,linux-x64-musl,linux-arm64-musl,darwin-x64,darwin-arm64
       KILO_SKIP_BUNDLED_BWRAP: "1"
     steps:
@@ -59,8 +59,27 @@ jobs:
           ./tests/unit/bharatcode-website-signin.test.ts
           ./tests/unit/extension-arch.test.ts
           ./tests/unit/extension-identity.test.ts
+          ./tests/unit/namespace-migration.test.ts
+          ./tests/unit/configuration-lifecycle.test.ts
+          ./tests/unit/bharatcode-catalog-ui.test.ts
+          ./tests/unit/model-selector-lifecycle.test.ts
+          ./tests/unit/kilo-provider-provider-refresh.test.ts
+          ./tests/unit/kilo-provider-catalog.test.ts
+          ./tests/unit/provider-actions-save.test.ts
+          ./tests/unit/provider-context-catalog.test.ts
           ./tests/unit/reuse-candidate-resources.test.ts
           ../opencode/test/plugin/bharatcode.test.ts
+      - name: Verify catalog recovery without session disposal
+        working-directory: packages/opencode
+        run: >-
+          bun test
+          test/kilocode/provider/bharatcode-catalog.test.ts
+          test/kilocode/provider/bharatcode-catalog-cache.test.ts
+          test/kilocode/provider/catalog-refresh-route.test.ts
+          test/kilocode/catalog-recovery.test.ts
+          test/kilocode/model-cache-effect.test.ts
+          test/kilocode/model-cache-org.test.ts
+          --timeout 30000
       - name: Build bundled backends
         if: ${{ !inputs.reuse_verified_backends }}
         working-directory: packages/opencode

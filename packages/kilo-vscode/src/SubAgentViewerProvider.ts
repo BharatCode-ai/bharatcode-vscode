@@ -31,11 +31,16 @@ export class SubAgentViewerProvider implements vscode.Disposable {
 
     const label = title ? `Sub-agent: ${title}` : "Sub-agent Viewer"
 
-    const panel = vscode.window.createWebviewPanel("kilo-code.new.SubAgentViewerPanel", label, vscode.ViewColumn.One, {
-      enableScripts: true,
-      retainContextWhenHidden: true,
-      localResourceRoots: [this.extensionUri],
-    })
+    const panel = vscode.window.createWebviewPanel(
+      "bharatcode-agent.SubAgentViewerPanel",
+      label,
+      vscode.ViewColumn.One,
+      {
+        enableScripts: true,
+        retainContextWhenHidden: true,
+        localResourceRoots: [this.extensionUri],
+      },
+    )
 
     panel.iconPath = {
       light: vscode.Uri.joinPath(this.extensionUri, "assets", "icons", "kilo-light.svg"),

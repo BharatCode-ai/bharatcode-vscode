@@ -62,11 +62,12 @@ export const layer: Layer.Layer<Service, never, Core.Service | Config.Service | 
         // models come from GET {baseURL}/models (model-cache, OpenAI list shape).
         const bh = cfg.provider?.bharatcode?.options
         const bhURL = bh?.baseURL ?? "https://bharatcode.ai/api/model/v1"
-        const bhOpts = bh?.baseURL ? { baseURL: bh.baseURL } : {}
 
         const addBharatcode = Effect.fnUntraced(function* () {
           if (providers.bharatcode) return
-          const models = yield* cache.fetch("bharatcode", bhOpts).pipe(Effect.catch(() => Effect.succeed({})))
+          // Let the cache resolve config so retries can detect endpoint changes;
+          // a captured baseURL override would pin recovery to the old endpoint.
+          const models = yield* cache.fetch("bharatcode").pipe(Effect.catch(() => Effect.succeed({})))
           providers.bharatcode = {
             id: "bharatcode",
             name: "BharatCode",
@@ -75,8 +76,8 @@ export const layer: Layer.Layer<Service, never, Core.Service | Config.Service | 
             npm: "@ai-sdk/openai-compatible",
             models,
           }
-          if (Object.keys(models).length === 0)
-            yield* cache.refresh("bharatcode", bhOpts).pipe(Effect.ignore, Effect.forkDetach)
+          // ModelCache owns bounded recovery and Retry-After; do not bypass it
+          // with an immediate second request for an empty catalog.
         })
 
         const addApertis = Effect.fnUntraced(function* () {

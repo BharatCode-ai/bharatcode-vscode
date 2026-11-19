@@ -42,7 +42,7 @@
   <!-- packages/opencode/src/plugin/bharatcode.ts -->
   <!-- packages/opencode/src/session/network.ts -->
 - <https://bharatcode.ai/api/model/v1>
-  <!-- packages/opencode/src/provider/model-cache.ts -->
+  <!-- packages/opencode/src/kilocode/provider/bharatcode-catalog.ts -->
   <!-- packages/opencode/src/provider/models.ts -->
 - <https://bharatcode.ai/docs>
   <!-- packages/kilo-vscode/webview-ui/agent-manager/intro/AgentManagerIntro.tsx -->

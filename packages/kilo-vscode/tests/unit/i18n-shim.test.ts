@@ -69,7 +69,7 @@ describe("extension host i18n", () => {
       env: { language: "en" },
       workspace: {
         getConfiguration: (section: string) => ({
-          get: () => (section === "kilo-code.new" ? "de" : undefined),
+          get: () => (section === "bharatcode-agent" ? "de" : undefined),
         }),
       },
     } as unknown as typeof import("vscode")

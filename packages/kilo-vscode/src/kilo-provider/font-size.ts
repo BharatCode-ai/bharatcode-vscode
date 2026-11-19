@@ -1,3 +1,4 @@
+import { affectsConfiguration } from "../configuration"
 import * as vscode from "vscode"
 import { getWebviewFontSize } from "../utils"
 
@@ -6,7 +7,7 @@ export function watchFontSizeConfig(
   next?: vscode.Disposable,
 ) {
   const font = vscode.workspace.onDidChangeConfiguration((event) => {
-    if (event.affectsConfiguration("kilo-code.new.fontSize"))
+    if (affectsConfiguration(event, "bharatcode-agent.fontSize"))
       post({ type: "fontSizeChanged", fontSize: getWebviewFontSize() })
   })
   return next ? vscode.Disposable.from(font, next) : font

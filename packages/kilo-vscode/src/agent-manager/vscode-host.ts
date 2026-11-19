@@ -1,3 +1,4 @@
+import { configuration, affectsConfiguration } from "../configuration"
 /**
  * VS Code adapter implementing the Host interface.
  *
@@ -67,7 +68,7 @@ export class VscodeHost implements Host {
     worktreeDirectories?: () => string[]
   }): PanelContext {
     const panel = vscode.window.createWebviewPanel(
-      "kilo-code.new.AgentManagerPanel",
+      "bharatcode-agent.AgentManagerPanel",
       "Agent Manager",
       vscode.ViewColumn.One,
       {
@@ -142,9 +143,9 @@ export class VscodeHost implements Host {
       disableViewedRegistration: true,
       disableStatsPolling: true,
       focusTargetContext: {
-        prompt: "kilo-code.new.agentManagerPromptFocused",
-        mainTerminal: "kilo-code.new.agentManagerMainTerminalFocused",
-        sideTerminal: "kilo-code.new.agentManagerSideTerminalFocused",
+        prompt: "bharatcode-agent.agentManagerPromptFocused",
+        mainTerminal: "bharatcode-agent.agentManagerMainTerminalFocused",
+        sideTerminal: "bharatcode-agent.agentManagerSideTerminalFocused",
       },
       onFocused: () => this.focus?.gained(),
       routeService: this.routes,
@@ -409,7 +410,7 @@ export class VscodeHost implements Host {
   }
 
   browserAutomation(): boolean {
-    return vscode.workspace.getConfiguration("kilo-code.new.experimental").get("browserAutomation", false)
+    return configuration("bharatcode-agent.experimental").get("browserAutomation", false)
   }
 
   async approveBrowserNavigation(origin: string): Promise<boolean> {
@@ -422,7 +423,7 @@ export class VscodeHost implements Host {
   }
 
   worktreePool(): boolean {
-    return vscode.workspace.getConfiguration("kilo-code.new.agentManager").get("worktreePool", true)
+    return configuration("bharatcode-agent.agentManager").get("worktreePool", true)
   }
 
   readProjects(): unknown {
@@ -455,7 +456,7 @@ export class VscodeHost implements Host {
 
   onDidChangeWorktreePool(cb: (enabled: boolean) => void): Disposable {
     return vscode.workspace.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration("kilo-code.new.agentManager.worktreePool")) cb(this.worktreePool())
+      if (affectsConfiguration(e, "bharatcode-agent.agentManager.worktreePool")) cb(this.worktreePool())
     })
   }
 
@@ -464,7 +465,7 @@ export class VscodeHost implements Host {
   }
 
   autoBranchNaming(): { enabled: boolean; prefix: string } {
-    const cfg = vscode.workspace.getConfiguration("kilo-code.new.agentManager")
+    const cfg = configuration("bharatcode-agent.agentManager")
     return {
       enabled: cfg.get("autoBranchNaming", true),
       prefix: cfg.get("branchPrefix", ""),
@@ -549,7 +550,7 @@ export class VscodeHost implements Host {
   }
 
   openSettings(tab?: string, projectId?: string): void {
-    void vscode.commands.executeCommand("kilo-code.new.settingsButtonClicked", tab, projectId)
+    void vscode.commands.executeCommand("bharatcode-agent.settingsButtonClicked", tab, projectId)
   }
 
   refreshGit(): void {

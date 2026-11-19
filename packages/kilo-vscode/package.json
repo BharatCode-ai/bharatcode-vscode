@@ -2,7 +2,7 @@
   "name": "bharatcode-agent",
   "displayName": "BharatCode Agent",
   "description": "The VS Code extension for BharatCode (bharatcode.ai). Sign in and the agent runs - the provider, endpoint and models are configured for you, so there is nothing to set up by hand.",
-  "version": "7.8.112",
+  "version": "7.8.114",
   "icon": "assets/icons/logo-outline-black.png",
   "galleryBanner": {
     "color": "#111113",
@@ -59,7 +59,7 @@
     },
     "taskDefinitions": [
       {
-        "type": "kilo-worktree-setup",
+        "type": "bharatcode-agent.worktree-setup",
         "properties": {
           "script": {
             "type": "string",
@@ -75,7 +75,7 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "kilo-code-ActivityBar",
+          "id": "bharatcode-agent.ActivityBar",
           "title": "BharatCode",
           "icon": "assets/icons/kilo-light.png",
           "darkIcon": "assets/icons/kilo-dark.png"
@@ -83,104 +83,104 @@
       ]
     },
     "views": {
-      "kilo-code-ActivityBar": [
+      "bharatcode-agent.ActivityBar": [
         {
           "type": "webview",
-          "id": "kilo-code.SidebarProvider",
+          "id": "bharatcode-agent.SidebarProvider",
           "name": "BharatCode"
         }
       ]
     },
     "commands": [
       {
-        "command": "kilo-code.new.setBharatcodeKey",
+        "command": "bharatcode-agent.setBharatcodeKey",
         "title": "Sign In",
         "category": "BharatCode"
       },
       {
-        "command": "kilo-code.new.plusButtonClicked",
+        "command": "bharatcode-agent.plusButtonClicked",
         "title": "New Task",
         "category": "BharatCode",
         "icon": "$(add)"
       },
       {
-        "command": "kilo-code.new.closeTask",
+        "command": "bharatcode-agent.closeTask",
         "title": "Close Task",
         "category": "BharatCode"
       },
       {
-        "command": "kilo-code.new.closeAllTasks",
+        "command": "bharatcode-agent.closeAllTasks",
         "title": "Close All Tasks",
         "category": "BharatCode"
       },
       {
-        "command": "kilo-code.new.agentManagerOpen",
+        "command": "bharatcode-agent.agentManagerOpen",
         "title": "Agent Manager",
         "category": "BharatCode",
         "icon": "$(organization)"
       },
       {
-        "command": "kilo-code.new.marketplaceButtonClicked",
+        "command": "bharatcode-agent.marketplaceButtonClicked",
         "title": "Marketplace",
         "category": "BharatCode",
         "icon": "$(extensions)"
       },
       {
-        "command": "kilo-code.new.historyButtonClicked",
+        "command": "bharatcode-agent.historyButtonClicked",
         "title": "History",
         "category": "BharatCode",
         "icon": "$(history)"
       },
       {
-        "command": "kilo-code.new.profileButtonClicked",
+        "command": "bharatcode-agent.profileButtonClicked",
         "title": "Profile",
         "category": "BharatCode",
         "icon": "$(account)"
       },
       {
-        "command": "kilo-code.new.settingsButtonClicked",
+        "command": "bharatcode-agent.settingsButtonClicked",
         "title": "Settings",
         "category": "BharatCode",
         "icon": "$(settings-gear)"
       },
       {
-        "command": "kilo-code.new.settingsSearch",
+        "command": "bharatcode-agent.settingsSearch",
         "title": "Search Settings",
         "category": "BharatCode",
         "icon": "$(search)"
       },
       {
-        "command": "kilo-code.new.sidebarTitle.plusButtonClicked",
+        "command": "bharatcode-agent.sidebarTitle.plusButtonClicked",
         "title": "New Task",
         "icon": "$(add)"
       },
       {
-        "command": "kilo-code.new.sidebarTitle.agentManagerOpen",
+        "command": "bharatcode-agent.sidebarTitle.agentManagerOpen",
         "title": "Agent Manager",
         "icon": "$(organization)"
       },
       {
-        "command": "kilo-code.new.sidebarTitle.marketplaceButtonClicked",
+        "command": "bharatcode-agent.sidebarTitle.marketplaceButtonClicked",
         "title": "Marketplace",
         "icon": "$(extensions)"
       },
       {
-        "command": "kilo-code.new.sidebarTitle.historyButtonClicked",
+        "command": "bharatcode-agent.sidebarTitle.historyButtonClicked",
         "title": "History",
         "icon": "$(history)"
       },
       {
-        "command": "kilo-code.new.sidebarTitle.profileButtonClicked",
+        "command": "bharatcode-agent.sidebarTitle.profileButtonClicked",
         "title": "Profile",
         "icon": "$(account)"
       },
       {
-        "command": "kilo-code.new.sidebarTitle.settingsButtonClicked",
+        "command": "bharatcode-agent.sidebarTitle.settingsButtonClicked",
         "title": "Settings",
         "icon": "$(settings-gear)"
       },
       {
-        "command": "kilo-code.new.openInTab",
+        "command": "bharatcode-agent.openInTab",
         "title": "Open in Tab",
         "category": "BharatCode",
         "icon": {
@@ -189,198 +189,198 @@
         }
       },
       {
-        "command": "kilo-code.new.openBrowser",
+        "command": "bharatcode-agent.openBrowser",
         "title": "Open Integrated Browser",
         "category": "BharatCode",
         "icon": "$(globe)"
       },
       {
-        "command": "kilo-code.new.showChanges",
+        "command": "bharatcode-agent.showChanges",
         "title": "Show Changes",
         "category": "BharatCode"
       },
       {
-        "command": "kilo-code.new.showMemory",
+        "command": "bharatcode-agent.showMemory",
         "title": "Show Project Memory",
         "category": "BharatCode"
       },
       {
-        "command": "kilo-code.new.toggleMemory",
+        "command": "bharatcode-agent.toggleMemory",
         "title": "Toggle Project Memory",
         "category": "BharatCode"
       },
       {
-        "command": "kilo-code.new.toggleCaffeination",
+        "command": "bharatcode-agent.toggleCaffeination",
         "title": "Toggle Keep Awake",
         "category": "BharatCode"
       },
       {
-        "command": "kilo-code.new.agentManager.previousSession",
+        "command": "bharatcode-agent.agentManager.previousSession",
         "title": "Agent Manager: Previous Session",
         "category": "BharatCode"
       },
       {
-        "command": "kilo-code.new.agentManager.nextSession",
+        "command": "bharatcode-agent.agentManager.nextSession",
         "title": "Agent Manager: Next Session",
         "category": "BharatCode"
       },
       {
-        "command": "kilo-code.new.agentManager.previousTab",
+        "command": "bharatcode-agent.agentManager.previousTab",
         "title": "Previous Session Tab",
         "category": "BharatCode"
       },
       {
-        "command": "kilo-code.new.agentManager.nextTab",
+        "command": "bharatcode-agent.agentManager.nextTab",
         "title": "Next Session Tab",
         "category": "BharatCode"
       },
       {
-        "command": "kilo-code.new.agentManager.previousTerminal",
+        "command": "bharatcode-agent.agentManager.previousTerminal",
         "title": "Agent Manager: Previous Terminal",
         "category": "BharatCode"
       },
       {
-        "command": "kilo-code.new.agentManager.nextTerminal",
+        "command": "bharatcode-agent.agentManager.nextTerminal",
         "title": "Agent Manager: Next Terminal",
         "category": "BharatCode"
       },
       {
-        "command": "kilo-code.new.agentManager.diagnostics",
+        "command": "bharatcode-agent.agentManager.diagnostics",
         "title": "Agent Manager: Show Worktree Diagnostics",
         "category": "BharatCode"
       },
       {
-        "command": "kilo-code.new.agentManager.search",
+        "command": "bharatcode-agent.agentManager.search",
         "title": "Agent Manager: Search Worktrees and Sessions",
         "category": "BharatCode"
       },
       {
-        "command": "kilo-code.new.agentManager.showTerminal",
+        "command": "bharatcode-agent.agentManager.showTerminal",
         "title": "Agent Manager: Focus Terminal",
         "category": "BharatCode",
         "icon": "$(terminal)"
       },
       {
-        "command": "kilo-code.new.agentManager.runScript",
+        "command": "bharatcode-agent.agentManager.runScript",
         "title": "Agent Manager: Run Script",
         "category": "BharatCode",
         "icon": "$(play)"
       },
       {
-        "command": "kilo-code.new.agentManager.toggleDiff",
+        "command": "bharatcode-agent.agentManager.toggleDiff",
         "title": "Agent Manager: Toggle Diff Panel",
         "category": "BharatCode",
         "icon": "$(diff)"
       },
       {
-        "command": "kilo-code.new.agentManager.showShortcuts",
+        "command": "bharatcode-agent.agentManager.showShortcuts",
         "title": "Agent Manager: Show Keyboard Shortcuts",
         "category": "BharatCode",
         "icon": "$(keyboard)"
       },
       {
-        "command": "kilo-code.new.agentManager.newTab",
+        "command": "bharatcode-agent.agentManager.newTab",
         "title": "Agent Manager: New Tab",
         "category": "BharatCode"
       },
       {
-        "command": "kilo-code.new.agentManager.newTerminalTab",
+        "command": "bharatcode-agent.agentManager.newTerminalTab",
         "title": "Agent Manager: New Terminal Tab",
         "category": "BharatCode"
       },
       {
-        "command": "kilo-code.new.agentManager.newSideTerminal",
+        "command": "bharatcode-agent.agentManager.newSideTerminal",
         "title": "Agent Manager: New Sidebar Terminal Tab",
         "category": "BharatCode"
       },
       {
-        "command": "kilo-code.new.agentManager.closeTab",
+        "command": "bharatcode-agent.agentManager.closeTab",
         "title": "Agent Manager: Close Tab",
         "category": "BharatCode"
       },
       {
-        "command": "kilo-code.new.agentManager.newWorktree",
+        "command": "bharatcode-agent.agentManager.newWorktree",
         "title": "Agent Manager: Configure New Worktree",
         "category": "BharatCode"
       },
       {
-        "command": "kilo-code.new.agentManager.quickWorktree",
+        "command": "bharatcode-agent.agentManager.quickWorktree",
         "title": "Agent Manager: New Worktree",
         "category": "BharatCode"
       },
       {
-        "command": "kilo-code.new.agentManager.openWorktree",
+        "command": "bharatcode-agent.agentManager.openWorktree",
         "title": "Agent Manager: Open Worktree",
         "category": "BharatCode"
       },
       {
-        "command": "kilo-code.new.agentManager.updateFromBase",
+        "command": "bharatcode-agent.agentManager.updateFromBase",
         "title": "Agent Manager: Update from base",
         "category": "BharatCode",
-        "enablement": "activeWebviewPanelId == 'kilo-code.new.AgentManagerPanel'"
+        "enablement": "activeWebviewPanelId == 'bharatcode-agent.AgentManagerPanel'"
       },
       {
-        "command": "kilo-code.new.agentManager.openPR",
+        "command": "bharatcode-agent.agentManager.openPR",
         "title": "Agent Manager: Open Pull Request",
         "category": "BharatCode"
       },
       {
-        "command": "kilo-code.new.agentManager.closeWorktree",
+        "command": "bharatcode-agent.agentManager.closeWorktree",
         "title": "Agent Manager: Close Worktree",
         "category": "BharatCode"
       },
       {
-        "command": "kilo-code.new.agentManager.advancedWorktree",
+        "command": "bharatcode-agent.agentManager.advancedWorktree",
         "title": "Agent Manager: Configure New Worktree",
         "category": "BharatCode"
       },
       {
-        "command": "kilo-code.new.agentManager.jumpTo1",
+        "command": "bharatcode-agent.agentManager.jumpTo1",
         "title": "Agent Manager: Jump to Item 1",
         "category": "BharatCode"
       },
       {
-        "command": "kilo-code.new.agentManager.jumpTo2",
+        "command": "bharatcode-agent.agentManager.jumpTo2",
         "title": "Agent Manager: Jump to Item 2",
         "category": "BharatCode"
       },
       {
-        "command": "kilo-code.new.agentManager.jumpTo3",
+        "command": "bharatcode-agent.agentManager.jumpTo3",
         "title": "Agent Manager: Jump to Item 3",
         "category": "BharatCode"
       },
       {
-        "command": "kilo-code.new.agentManager.jumpTo4",
+        "command": "bharatcode-agent.agentManager.jumpTo4",
         "title": "Agent Manager: Jump to Item 4",
         "category": "BharatCode"
       },
       {
-        "command": "kilo-code.new.agentManager.jumpTo5",
+        "command": "bharatcode-agent.agentManager.jumpTo5",
         "title": "Agent Manager: Jump to Item 5",
         "category": "BharatCode"
       },
       {
-        "command": "kilo-code.new.agentManager.jumpTo6",
+        "command": "bharatcode-agent.agentManager.jumpTo6",
         "title": "Agent Manager: Jump to Item 6",
         "category": "BharatCode"
       },
       {
-        "command": "kilo-code.new.agentManager.jumpTo7",
+        "command": "bharatcode-agent.agentManager.jumpTo7",
         "title": "Agent Manager: Jump to Item 7",
         "category": "BharatCode"
       },
       {
-        "command": "kilo-code.new.agentManager.jumpTo8",
+        "command": "bharatcode-agent.agentManager.jumpTo8",
         "title": "Agent Manager: Jump to Item 8",
         "category": "BharatCode"
       },
       {
-        "command": "kilo-code.new.agentManager.jumpTo9",
+        "command": "bharatcode-agent.agentManager.jumpTo9",
         "title": "Agent Manager: Jump to Item 9",
         "category": "BharatCode"
       },
       {
-        "command": "kilo-code.new.generateCommitMessage",
+        "command": "bharatcode-agent.generateCommitMessage",
         "title": "Generate Commit Message",
         "category": "BharatCode",
         "icon": {
@@ -389,469 +389,468 @@
         }
       },
       {
-        "command": "kilo-code.new.explainCode",
+        "command": "bharatcode-agent.explainCode",
         "title": "Explain Code",
         "category": "BharatCode"
       },
       {
-        "command": "kilo-code.new.fixCode",
+        "command": "bharatcode-agent.fixCode",
         "title": "Fix Code",
         "category": "BharatCode"
       },
       {
-        "command": "kilo-code.new.improveCode",
+        "command": "bharatcode-agent.improveCode",
         "title": "Improve Code",
         "category": "BharatCode"
       },
       {
-        "command": "kilo-code.new.addToContext",
+        "command": "bharatcode-agent.addToContext",
         "title": "Add to Context",
         "category": "BharatCode"
       },
       {
-        "command": "kilo-code.new.terminalAddToContext",
+        "command": "bharatcode-agent.terminalAddToContext",
         "title": "Add Terminal Content to Context",
         "category": "BharatCode"
       },
       {
-        "command": "kilo-code.new.terminalFixCommand",
+        "command": "bharatcode-agent.terminalFixCommand",
         "title": "Fix This Command",
         "category": "BharatCode"
       },
       {
-        "command": "kilo-code.new.terminalExplainCommand",
+        "command": "bharatcode-agent.terminalExplainCommand",
         "title": "Explain This Command",
         "category": "BharatCode"
       },
       {
-        "command": "kilo-code.new.focusChatInput",
+        "command": "bharatcode-agent.focusChatInput",
         "title": "Focus Chat Input",
         "category": "BharatCode"
       },
       {
-        "command": "kilo-code.new.toggleChatSearch",
+        "command": "bharatcode-agent.toggleChatSearch",
         "title": "Toggle Chat Search",
         "category": "BharatCode"
       },
       {
-        "command": "kilo-code.new.cycleAgentMode",
+        "command": "bharatcode-agent.cycleAgentMode",
         "title": "Cycle Agent Mode",
         "category": "BharatCode"
       },
       {
-        "command": "kilo-code.new.cyclePreviousAgentMode",
+        "command": "bharatcode-agent.cyclePreviousAgentMode",
         "title": "Cycle Previous Agent Mode",
         "category": "BharatCode"
       },
       {
-        "command": "kilo-code.new.toggleAutoApprove",
+        "command": "bharatcode-agent.toggleAutoApprove",
         "title": "Toggle Auto-Approve",
         "category": "BharatCode"
       },
       {
-        "command": "kilo-code.new.generateTerminalCommand",
+        "command": "bharatcode-agent.generateTerminalCommand",
         "title": "Generate Terminal Command",
         "category": "BharatCode"
       },
       {
-        "command": "kilo-code.new.takeHeapSnapshot",
+        "command": "bharatcode-agent.takeHeapSnapshot",
         "title": "Take Heap Snapshot",
         "category": "BharatCode"
       },
       {
-        "command": "kilo-code.new.reload",
+        "command": "bharatcode-agent.reload",
         "title": "Reload Config and Skills",
         "category": "BharatCode"
       }
     ],
     "submenus": [
       {
-        "id": "kilo-code.new.editorContextMenu",
+        "id": "bharatcode-agent.editorContextMenu",
         "label": "BharatCode"
       },
       {
-        "id": "kilo-code.new.terminalContextMenu",
+        "id": "bharatcode-agent.terminalContextMenu",
         "label": "BharatCode"
       }
     ],
     "menus": {
       "commandPalette": [
         {
-          "command": "kilo-code.new.sidebarTitle.plusButtonClicked",
+          "command": "bharatcode-agent.sidebarTitle.plusButtonClicked",
           "when": "false"
         },
         {
-          "command": "kilo-code.new.sidebarTitle.historyButtonClicked",
+          "command": "bharatcode-agent.sidebarTitle.historyButtonClicked",
           "when": "false"
         },
         {
-          "command": "kilo-code.new.sidebarTitle.agentManagerOpen",
+          "command": "bharatcode-agent.sidebarTitle.agentManagerOpen",
           "when": "false"
         },
         {
-          "command": "kilo-code.new.agentManager.advancedWorktree",
+          "command": "bharatcode-agent.agentManager.advancedWorktree",
           "when": "false"
         },
         {
-          "command": "kilo-code.new.sidebarTitle.marketplaceButtonClicked",
+          "command": "bharatcode-agent.sidebarTitle.marketplaceButtonClicked",
           "when": "false"
         },
         {
-          "command": "kilo-code.new.sidebarTitle.profileButtonClicked",
+          "command": "bharatcode-agent.sidebarTitle.profileButtonClicked",
           "when": "false"
         },
         {
-          "command": "kilo-code.new.sidebarTitle.settingsButtonClicked",
+          "command": "bharatcode-agent.sidebarTitle.settingsButtonClicked",
           "when": "false"
         }
       ],
       "view/title": [
         {
-          "command": "kilo-code.new.sidebarTitle.plusButtonClicked",
+          "command": "bharatcode-agent.sidebarTitle.plusButtonClicked",
           "group": "navigation@0",
-          "when": "view == kilo-code.SidebarProvider && !kilo-code.new.isCursor"
+          "when": "view == bharatcode-agent.SidebarProvider && !bharatcode-agent.isCursor"
         },
         {
-          "command": "kilo-code.new.sidebarTitle.historyButtonClicked",
+          "command": "bharatcode-agent.sidebarTitle.historyButtonClicked",
           "group": "navigation@1",
-          "when": "view == kilo-code.SidebarProvider && !kilo-code.new.isCursor"
+          "when": "view == bharatcode-agent.SidebarProvider && !bharatcode-agent.isCursor"
         },
         {
-          "command": "kilo-code.new.sidebarTitle.agentManagerOpen",
+          "command": "bharatcode-agent.sidebarTitle.agentManagerOpen",
           "group": "navigation@2",
-          "when": "view == kilo-code.SidebarProvider && !kilo-code.new.isCursor"
+          "when": "view == bharatcode-agent.SidebarProvider && !bharatcode-agent.isCursor"
         },
         {
-          "command": "kilo-code.new.sidebarTitle.marketplaceButtonClicked",
+          "command": "bharatcode-agent.sidebarTitle.marketplaceButtonClicked",
           "group": "navigation@3",
-          "when": "view == kilo-code.SidebarProvider && !kilo-code.new.isCursor"
+          "when": "view == bharatcode-agent.SidebarProvider && !bharatcode-agent.isCursor"
         },
         {
-          "command": "kilo-code.new.sidebarTitle.profileButtonClicked",
+          "command": "bharatcode-agent.sidebarTitle.profileButtonClicked",
           "group": "navigation@4",
-          "when": "view == kilo-code.SidebarProvider && !kilo-code.new.isCursor"
+          "when": "view == bharatcode-agent.SidebarProvider && !bharatcode-agent.isCursor"
         },
         {
-          "command": "kilo-code.new.sidebarTitle.settingsButtonClicked",
+          "command": "bharatcode-agent.sidebarTitle.settingsButtonClicked",
           "group": "navigation@5",
-          "when": "view == kilo-code.SidebarProvider && !kilo-code.new.isCursor"
+          "when": "view == bharatcode-agent.SidebarProvider && !bharatcode-agent.isCursor"
         }
       ],
       "scm/title": [
         {
-          "command": "kilo-code.new.generateCommitMessage",
+          "command": "bharatcode-agent.generateCommitMessage",
           "group": "navigation",
           "when": "scmProvider == git"
         }
       ],
       "scm/input": [
         {
-          "command": "kilo-code.new.generateCommitMessage",
+          "command": "bharatcode-agent.generateCommitMessage",
           "group": "navigation",
           "when": "scmProvider == git"
         }
       ],
       "editor/title": [
         {
-          "command": "kilo-code.new.openInTab",
+          "command": "bharatcode-agent.openInTab",
           "group": "navigation",
           "when": "true"
         },
         {
-          "command": "kilo-code.new.plusButtonClicked",
+          "command": "bharatcode-agent.plusButtonClicked",
           "group": "navigation@0",
-          "when": "activeWebviewPanelId == kilo-code.new.TabPanel && !kilo-code.new.isCursor"
+          "when": "activeWebviewPanelId == bharatcode-agent.TabPanel && !bharatcode-agent.isCursor"
         },
         {
-          "command": "kilo-code.new.historyButtonClicked",
+          "command": "bharatcode-agent.historyButtonClicked",
           "group": "navigation@1",
-          "when": "activeWebviewPanelId == kilo-code.new.TabPanel && !kilo-code.new.isCursor"
+          "when": "activeWebviewPanelId == bharatcode-agent.TabPanel && !bharatcode-agent.isCursor"
         },
         {
-          "command": "kilo-code.new.profileButtonClicked",
+          "command": "bharatcode-agent.profileButtonClicked",
           "group": "navigation@2",
-          "when": "activeWebviewPanelId == kilo-code.new.TabPanel && !kilo-code.new.isCursor"
+          "when": "activeWebviewPanelId == bharatcode-agent.TabPanel && !bharatcode-agent.isCursor"
         },
         {
-          "command": "kilo-code.new.settingsButtonClicked",
+          "command": "bharatcode-agent.settingsButtonClicked",
           "group": "navigation@3",
-          "when": "activeWebviewPanelId == kilo-code.new.TabPanel && !kilo-code.new.isCursor"
+          "when": "activeWebviewPanelId == bharatcode-agent.TabPanel && !bharatcode-agent.isCursor"
         }
       ],
       "editor/context": [
         {
-          "submenu": "kilo-code.new.editorContextMenu",
-          "group": "1_kilocode"
+          "submenu": "bharatcode-agent.editorContextMenu",
+          "group": "1_bharatcode-agent"
         }
       ],
-      "kilo-code.new.editorContextMenu": [
+      "bharatcode-agent.editorContextMenu": [
         {
-          "command": "kilo-code.new.explainCode",
+          "command": "bharatcode-agent.explainCode",
           "group": "1_actions@1"
         },
         {
-          "command": "kilo-code.new.fixCode",
+          "command": "bharatcode-agent.fixCode",
           "group": "1_actions@2"
         },
         {
-          "command": "kilo-code.new.improveCode",
+          "command": "bharatcode-agent.improveCode",
           "group": "1_actions@3"
         },
         {
-          "command": "kilo-code.new.addToContext",
+          "command": "bharatcode-agent.addToContext",
           "group": "1_actions@4"
         }
       ],
       "terminal/context": [
         {
-          "submenu": "kilo-code.new.terminalContextMenu",
-          "group": "2_kilocode"
+          "submenu": "bharatcode-agent.terminalContextMenu",
+          "group": "2_bharatcode-agent"
         }
       ],
-      "kilo-code.new.terminalContextMenu": [
+      "bharatcode-agent.terminalContextMenu": [
         {
-          "command": "kilo-code.new.terminalAddToContext",
+          "command": "bharatcode-agent.terminalAddToContext",
           "group": "1_actions@1"
         },
         {
-          "command": "kilo-code.new.terminalFixCommand",
+          "command": "bharatcode-agent.terminalFixCommand",
           "group": "1_actions@2"
         },
         {
-          "command": "kilo-code.new.terminalExplainCommand",
+          "command": "bharatcode-agent.terminalExplainCommand",
           "group": "1_actions@3"
         }
       ]
     },
     "keybindings": [
       {
-        "command": "kilo-code.new.focusChatInput",
+        "command": "bharatcode-agent.focusChatInput",
         "key": "ctrl+shift+a",
-        "mac": "cmd+shift+a"
+        "mac": "cmd+shift+a",
+        "when": "bharatcode-agent.sidebarFocused || activeWebviewPanelId == 'bharatcode-agent.AgentManagerPanel' || activeWebviewPanelId == 'bharatcode-agent.TabPanel'"
       },
       {
-        "command": "kilo-code.new.toggleAutoApprove",
+        "command": "bharatcode-agent.toggleAutoApprove",
         "key": "ctrl+alt+a",
-        "mac": "cmd+alt+a"
+        "mac": "cmd+alt+a",
+        "when": "bharatcode-agent.sidebarFocused || activeWebviewPanelId == 'bharatcode-agent.AgentManagerPanel' || activeWebviewPanelId == 'bharatcode-agent.TabPanel'"
       },
       {
-        "command": "kilo-code.new.generateTerminalCommand",
+        "command": "bharatcode-agent.generateTerminalCommand",
         "key": "ctrl+shift+g",
-        "mac": "cmd+shift+g"
+        "mac": "cmd+shift+g",
+        "when": "bharatcode-agent.sidebarFocused || activeWebviewPanelId == 'bharatcode-agent.AgentManagerPanel' || activeWebviewPanelId == 'bharatcode-agent.TabPanel'"
       },
       {
-        "command": "-workbench.actions.view.problems",
+        "command": "bharatcode-agent.agentManagerOpen",
         "key": "ctrl+shift+m",
-        "mac": "cmd+shift+m"
+        "mac": "cmd+shift+m",
+        "when": "bharatcode-agent.sidebarFocused || activeWebviewPanelId == 'bharatcode-agent.AgentManagerPanel' || activeWebviewPanelId == 'bharatcode-agent.TabPanel'"
       },
       {
-        "command": "kilo-code.new.agentManagerOpen",
-        "key": "ctrl+shift+m",
-        "mac": "cmd+shift+m"
-      },
-      {
-        "command": "kilo-code.new.addToContext",
+        "command": "bharatcode-agent.addToContext",
         "key": "ctrl+k ctrl+a",
         "mac": "cmd+k cmd+a",
         "when": "editorTextFocus && editorHasSelection"
       },
       {
-        "command": "kilo-code.new.agentManager.previousSession",
+        "command": "bharatcode-agent.agentManager.previousSession",
         "key": "ctrl+alt+up",
         "mac": "cmd+alt+up",
-        "when": "activeWebviewPanelId == 'kilo-code.new.AgentManagerPanel'"
+        "when": "activeWebviewPanelId == 'bharatcode-agent.AgentManagerPanel'"
       },
       {
-        "command": "kilo-code.new.agentManager.nextSession",
+        "command": "bharatcode-agent.agentManager.nextSession",
         "key": "ctrl+alt+down",
         "mac": "cmd+alt+down",
-        "when": "activeWebviewPanelId == 'kilo-code.new.AgentManagerPanel'"
+        "when": "activeWebviewPanelId == 'bharatcode-agent.AgentManagerPanel'"
       },
       {
-        "command": "kilo-code.new.agentManager.previousTab",
+        "command": "bharatcode-agent.agentManager.previousTab",
         "key": "ctrl+alt+left",
         "mac": "cmd+alt+left",
-        "when": "kilo-code.new.sidebarFocused || activeWebviewPanelId == 'kilo-code.new.TabPanel' || activeWebviewPanelId == 'kilo-code.new.AgentManagerPanel'"
+        "when": "bharatcode-agent.sidebarFocused || activeWebviewPanelId == 'bharatcode-agent.TabPanel' || activeWebviewPanelId == 'bharatcode-agent.AgentManagerPanel'"
       },
       {
-        "command": "kilo-code.new.agentManager.nextTab",
+        "command": "bharatcode-agent.agentManager.nextTab",
         "key": "ctrl+alt+right",
         "mac": "cmd+alt+right",
-        "when": "kilo-code.new.sidebarFocused || activeWebviewPanelId == 'kilo-code.new.TabPanel' || activeWebviewPanelId == 'kilo-code.new.AgentManagerPanel'"
+        "when": "bharatcode-agent.sidebarFocused || activeWebviewPanelId == 'bharatcode-agent.TabPanel' || activeWebviewPanelId == 'bharatcode-agent.AgentManagerPanel'"
       },
       {
-        "command": "kilo-code.new.agentManager.previousTerminal",
+        "command": "bharatcode-agent.agentManager.previousTerminal",
         "key": "ctrl+shift+[",
         "mac": "cmd+shift+[",
-        "when": "activeWebviewPanelId == 'kilo-code.new.AgentManagerPanel'"
+        "when": "activeWebviewPanelId == 'bharatcode-agent.AgentManagerPanel'"
       },
       {
-        "command": "kilo-code.new.agentManager.nextTerminal",
+        "command": "bharatcode-agent.agentManager.nextTerminal",
         "key": "ctrl+shift+]",
         "mac": "cmd+shift+]",
-        "when": "activeWebviewPanelId == 'kilo-code.new.AgentManagerPanel'"
+        "when": "activeWebviewPanelId == 'bharatcode-agent.AgentManagerPanel'"
       },
       {
-        "command": "kilo-code.new.agentManager.search",
+        "command": "bharatcode-agent.agentManager.search",
         "key": "ctrl+f",
         "mac": "cmd+f",
-        "when": "activeWebviewPanelId == 'kilo-code.new.AgentManagerPanel' && !terminalFocus"
+        "when": "activeWebviewPanelId == 'bharatcode-agent.AgentManagerPanel' && !terminalFocus"
       },
       {
-        "command": "kilo-code.new.agentManager.showTerminal",
+        "command": "bharatcode-agent.agentManager.showTerminal",
         "key": "ctrl+/",
         "mac": "cmd+/",
-        "when": "activeWebviewPanelId == 'kilo-code.new.AgentManagerPanel' && !kilo-code.new.sidebarFocused"
+        "when": "activeWebviewPanelId == 'bharatcode-agent.AgentManagerPanel' && !bharatcode-agent.sidebarFocused"
       },
       {
-        "command": "kilo-code.new.agentManager.runScript",
+        "command": "bharatcode-agent.agentManager.runScript",
         "key": "ctrl+e",
         "mac": "cmd+e",
-        "when": "activeWebviewPanelId == 'kilo-code.new.AgentManagerPanel' && (isMac || !terminalFocus)"
+        "when": "activeWebviewPanelId == 'bharatcode-agent.AgentManagerPanel' && (isMac || !terminalFocus)"
       },
       {
-        "command": "kilo-code.new.agentManager.toggleDiff",
+        "command": "bharatcode-agent.agentManager.toggleDiff",
         "key": "ctrl+d",
         "mac": "cmd+d",
-        "when": "activeWebviewPanelId == 'kilo-code.new.AgentManagerPanel'"
+        "when": "activeWebviewPanelId == 'bharatcode-agent.AgentManagerPanel'"
       },
       {
-        "command": "kilo-code.new.agentManager.showShortcuts",
+        "command": "bharatcode-agent.agentManager.showShortcuts",
         "key": "ctrl+shift+/",
         "mac": "cmd+shift+/",
-        "when": "activeWebviewPanelId == 'kilo-code.new.AgentManagerPanel'"
+        "when": "activeWebviewPanelId == 'bharatcode-agent.AgentManagerPanel'"
       },
       {
-        "command": "kilo-code.new.agentManager.newTab",
+        "command": "bharatcode-agent.agentManager.newTab",
         "key": "ctrl+t",
         "mac": "cmd+t",
-        "when": "activeWebviewPanelId == 'kilo-code.new.AgentManagerPanel' && !kilo-code.new.agentManagerSideTerminalFocused"
+        "when": "activeWebviewPanelId == 'bharatcode-agent.AgentManagerPanel' && !bharatcode-agent.agentManagerSideTerminalFocused"
       },
       {
-        "command": "kilo-code.new.agentManager.newTerminalTab",
+        "command": "bharatcode-agent.agentManager.newTerminalTab",
         "key": "ctrl+shift+t",
         "mac": "cmd+shift+t",
-        "when": "activeWebviewPanelId == 'kilo-code.new.AgentManagerPanel' && !kilo-code.new.agentManagerSideTerminalFocused"
+        "when": "activeWebviewPanelId == 'bharatcode-agent.AgentManagerPanel' && !bharatcode-agent.agentManagerSideTerminalFocused"
       },
       {
-        "command": "kilo-code.new.agentManager.newSideTerminal",
+        "command": "bharatcode-agent.agentManager.newSideTerminal",
         "key": "ctrl+t",
         "mac": "cmd+t",
-        "when": "activeWebviewPanelId == 'kilo-code.new.AgentManagerPanel' && kilo-code.new.agentManagerSideTerminalFocused"
+        "when": "activeWebviewPanelId == 'bharatcode-agent.AgentManagerPanel' && bharatcode-agent.agentManagerSideTerminalFocused"
       },
       {
-        "command": "kilo-code.new.agentManager.closeTab",
+        "command": "bharatcode-agent.agentManager.closeTab",
         "key": "ctrl+w",
         "mac": "cmd+w",
-        "when": "activeWebviewPanelId == 'kilo-code.new.AgentManagerPanel'"
+        "when": "activeWebviewPanelId == 'bharatcode-agent.AgentManagerPanel'"
       },
       {
-        "command": "kilo-code.new.agentManager.newWorktree",
+        "command": "bharatcode-agent.agentManager.newWorktree",
         "key": "ctrl+n",
         "mac": "cmd+n",
-        "when": "activeWebviewPanelId == 'kilo-code.new.AgentManagerPanel'"
+        "when": "activeWebviewPanelId == 'bharatcode-agent.AgentManagerPanel'"
       },
       {
-        "command": "kilo-code.new.agentManager.quickWorktree",
+        "command": "bharatcode-agent.agentManager.quickWorktree",
         "key": "ctrl+shift+n",
         "mac": "cmd+shift+n",
-        "when": "activeWebviewPanelId == 'kilo-code.new.AgentManagerPanel'"
+        "when": "activeWebviewPanelId == 'bharatcode-agent.AgentManagerPanel'"
       },
       {
-        "command": "kilo-code.new.agentManager.openWorktree",
+        "command": "bharatcode-agent.agentManager.openWorktree",
         "key": "ctrl+shift+o",
         "mac": "cmd+shift+o",
-        "when": "activeWebviewPanelId == 'kilo-code.new.AgentManagerPanel'"
+        "when": "activeWebviewPanelId == 'bharatcode-agent.AgentManagerPanel'"
       },
       {
-        "command": "kilo-code.new.agentManager.openPR",
+        "command": "bharatcode-agent.agentManager.openPR",
         "key": "ctrl+shift+r",
         "mac": "cmd+shift+r",
-        "when": "activeWebviewPanelId == 'kilo-code.new.AgentManagerPanel'"
+        "when": "activeWebviewPanelId == 'bharatcode-agent.AgentManagerPanel'"
       },
       {
-        "command": "kilo-code.new.agentManager.closeWorktree",
+        "command": "bharatcode-agent.agentManager.closeWorktree",
         "key": "ctrl+shift+w",
         "mac": "cmd+shift+w",
-        "when": "activeWebviewPanelId == 'kilo-code.new.AgentManagerPanel'"
+        "when": "activeWebviewPanelId == 'bharatcode-agent.AgentManagerPanel'"
       },
       {
-        "command": "kilo-code.new.agentManager.jumpTo1",
+        "command": "bharatcode-agent.agentManager.jumpTo1",
         "key": "ctrl+1",
         "mac": "cmd+1",
-        "when": "activeWebviewPanelId == 'kilo-code.new.AgentManagerPanel'"
+        "when": "activeWebviewPanelId == 'bharatcode-agent.AgentManagerPanel'"
       },
       {
-        "command": "kilo-code.new.agentManager.jumpTo2",
+        "command": "bharatcode-agent.agentManager.jumpTo2",
         "key": "ctrl+2",
         "mac": "cmd+2",
-        "when": "activeWebviewPanelId == 'kilo-code.new.AgentManagerPanel'"
+        "when": "activeWebviewPanelId == 'bharatcode-agent.AgentManagerPanel'"
       },
       {
-        "command": "kilo-code.new.agentManager.jumpTo3",
+        "command": "bharatcode-agent.agentManager.jumpTo3",
         "key": "ctrl+3",
         "mac": "cmd+3",
-        "when": "activeWebviewPanelId == 'kilo-code.new.AgentManagerPanel'"
+        "when": "activeWebviewPanelId == 'bharatcode-agent.AgentManagerPanel'"
       },
       {
-        "command": "kilo-code.new.agentManager.jumpTo4",
+        "command": "bharatcode-agent.agentManager.jumpTo4",
         "key": "ctrl+4",
         "mac": "cmd+4",
-        "when": "activeWebviewPanelId == 'kilo-code.new.AgentManagerPanel'"
+        "when": "activeWebviewPanelId == 'bharatcode-agent.AgentManagerPanel'"
       },
       {
-        "command": "kilo-code.new.agentManager.jumpTo5",
+        "command": "bharatcode-agent.agentManager.jumpTo5",
         "key": "ctrl+5",
         "mac": "cmd+5",
-        "when": "activeWebviewPanelId == 'kilo-code.new.AgentManagerPanel'"
+        "when": "activeWebviewPanelId == 'bharatcode-agent.AgentManagerPanel'"
       },
       {
-        "command": "kilo-code.new.agentManager.jumpTo6",
+        "command": "bharatcode-agent.agentManager.jumpTo6",
         "key": "ctrl+6",
         "mac": "cmd+6",
-        "when": "activeWebviewPanelId == 'kilo-code.new.AgentManagerPanel'"
+        "when": "activeWebviewPanelId == 'bharatcode-agent.AgentManagerPanel'"
       },
       {
-        "command": "kilo-code.new.agentManager.jumpTo7",
+        "command": "bharatcode-agent.agentManager.jumpTo7",
         "key": "ctrl+7",
         "mac": "cmd+7",
-        "when": "activeWebviewPanelId == 'kilo-code.new.AgentManagerPanel'"
+        "when": "activeWebviewPanelId == 'bharatcode-agent.AgentManagerPanel'"
       },
       {
-        "command": "kilo-code.new.agentManager.jumpTo8",
+        "command": "bharatcode-agent.agentManager.jumpTo8",
         "key": "ctrl+8",
         "mac": "cmd+8",
-        "when": "activeWebviewPanelId == 'kilo-code.new.AgentManagerPanel'"
+        "when": "activeWebviewPanelId == 'bharatcode-agent.AgentManagerPanel'"
       },
       {
-        "command": "kilo-code.new.agentManager.jumpTo9",
+        "command": "bharatcode-agent.agentManager.jumpTo9",
         "key": "ctrl+9",
         "mac": "cmd+9",
-        "when": "activeWebviewPanelId == 'kilo-code.new.AgentManagerPanel'"
+        "when": "activeWebviewPanelId == 'bharatcode-agent.AgentManagerPanel'"
       },
       {
-        "command": "kilo-code.new.cycleAgentMode",
+        "command": "bharatcode-agent.cycleAgentMode",
         "key": "ctrl+.",
         "mac": "cmd+.",
-        "when": "kilo-code.new.sidebarFocused || activeWebviewPanelId == 'kilo-code.new.AgentManagerPanel' || activeWebviewPanelId == 'kilo-code.new.TabPanel'"
+        "when": "bharatcode-agent.sidebarFocused || activeWebviewPanelId == 'bharatcode-agent.AgentManagerPanel' || activeWebviewPanelId == 'bharatcode-agent.TabPanel'"
       },
       {
-        "command": "kilo-code.new.cyclePreviousAgentMode",
+        "command": "bharatcode-agent.cyclePreviousAgentMode",
         "key": "ctrl+shift+.",
         "mac": "cmd+shift+.",
-        "when": "kilo-code.new.sidebarFocused || activeWebviewPanelId == 'kilo-code.new.AgentManagerPanel' || activeWebviewPanelId == 'kilo-code.new.TabPanel'"
+        "when": "bharatcode-agent.sidebarFocused || activeWebviewPanelId == 'bharatcode-agent.AgentManagerPanel' || activeWebviewPanelId == 'bharatcode-agent.TabPanel'"
       },
       {
-        "command": "kilo-code.new.settingsSearch",
+        "command": "bharatcode-agent.settingsSearch",
         "key": "ctrl+f",
         "mac": "cmd+f",
-        "when": "activeWebviewPanelId == 'kilo-code.new.settingsPanel'"
+        "when": "activeWebviewPanelId == 'bharatcode-agent.settingsPanel'"
       }
     ],
     "configuration": {
       "title": "BharatCode",
       "properties": {
-        "kilo-code.new.language": {
+        "bharatcode-agent.language": {
           "type": "string",
           "default": "",
           "description": "Override the UI language for BharatCode (e.g. en, de, ja). Empty means use VS Code's display language.",
@@ -904,7 +903,7 @@
             "فارسی"
           ]
         },
-        "kilo-code.new.languageCommitMessage": {
+        "bharatcode-agent.languageCommitMessage": {
           "type": "string",
           "default": "sync",
           "description": "Language used for AI-generated commit messages. Choose 'sync' to follow the BharatCode UI language, or select a specific language.",
@@ -957,53 +956,53 @@
             "فارسی"
           ]
         },
-        "kilo-code.new.model.providerID": {
+        "bharatcode-agent.model.providerID": {
           "type": "string",
           "default": "bharatcode",
           "description": "Default model provider ID for new sessions"
         },
-        "kilo-code.new.model.modelID": {
+        "bharatcode-agent.model.modelID": {
           "type": "string",
           "default": "qwen-3.8-27b",
           "description": "Default model ID for new sessions"
         },
-        "kilo-code.new.agentManager.autoBranchNaming": {
+        "bharatcode-agent.agentManager.autoBranchNaming": {
           "type": "boolean",
           "default": true,
           "scope": "application",
           "description": "Automatically name new Agent Manager branches when the conversation describes a clear task. Explicitly named and published branches are never renamed."
         },
-        "kilo-code.new.agentManager.branchPrefix": {
+        "bharatcode-agent.agentManager.branchPrefix": {
           "type": "string",
           "default": "",
           "scope": "application",
           "description": "Prefix for automatically named Agent Manager branches, for example 'marius/' or 'feature/'. Explicit branch names are unchanged."
         },
-        "kilo-code.new.agentManager.worktreePool": {
+        "bharatcode-agent.agentManager.worktreePool": {
           "type": "boolean",
           "default": true,
           "scope": "application",
           "description": "Pre-warm a ready worktree in the background so new Agent Manager sessions start faster. Uses extra disk space equal to one checkout per open project. Turn off to create worktrees only on demand."
         },
-        "kilo-code.new.experimental.browserAutomation": {
+        "bharatcode-agent.experimental.browserAutomation": {
           "type": "boolean",
           "default": false,
           "scope": "application",
           "description": "Enable the experimental Integrated Browser panel and browser_open tool in Agent Manager."
         },
-        "kilo-code.new.experimental.conversationPromptHistory": {
+        "bharatcode-agent.experimental.conversationPromptHistory": {
           "type": "boolean",
           "default": false,
           "scope": "application",
           "description": "Keep the prompt input history (ArrowUp/ArrowDown recall) separate for each conversation instead of sharing one history across all conversations."
         },
-        "kilo-code.new.experimental.claudeMigration": {
+        "bharatcode-agent.experimental.claudeMigration": {
           "type": "boolean",
           "default": false,
           "scope": "application",
           "description": "Experimental one-time import of supported global Claude Code instructions, simple skills, and disabled MCP definitions into BharatCode. The original Claude files are never changed."
         },
-        "kilo-code.new.agentManager.terminalButtonDestination": {
+        "bharatcode-agent.agentManager.terminalButtonDestination": {
           "type": "string",
           "scope": "application",
           "default": "agentManager",
@@ -1017,62 +1016,62 @@
           ],
           "description": "Default destination for the Agent Manager terminal button and Focus Terminal keyboard shortcut. The terminal button's dropdown remembers its own choice per Agent Manager panel; this setting only applies to panels that never picked one."
         },
-        "kilo-code.new.indexing.showButtonWhenDisabled": {
+        "bharatcode-agent.indexing.showButtonWhenDisabled": {
           "type": "boolean",
           "default": true,
           "scope": "application",
           "description": "Show the codebase indexing button below the prompt while indexing is disabled."
         },
-        "kilo-code.new.claudeCodeCompat": {
+        "bharatcode-agent.claudeCodeCompat": {
           "type": "boolean",
           "default": false,
           "description": "Load CLAUDE.md instructions and skills from your Claude Code configuration directory into BharatCode sessions. Enable this if you want BharatCode to use your Claude Code instructions and skills."
         },
-        "kilo-code.new.extraCaCerts": {
+        "bharatcode-agent.extraCaCerts": {
           "type": "string",
           "default": "",
           "description": "Absolute path to a PEM file containing extra CA certificates to trust when the BharatCode backend makes HTTPS requests (sets NODE_EXTRA_CA_CERTS on the CLI process). Use this if you're behind a corporate proxy that performs SSL inspection. Leave empty to rely on the OS trust store."
         },
-        "kilo-code.new.autoApprove.enabled": {
+        "bharatcode-agent.autoApprove.enabled": {
           "type": "boolean",
           "default": false,
           "description": "Start BharatCode with the main auto-approve toggle enabled. When enabled, permission prompts are approved automatically. Sandbox escalation prompts are always excluded."
         },
-        "kilo-code.new.maxCost": {
+        "bharatcode-agent.maxCost": {
           "type": "number",
           "default": 0,
           "minimum": 0,
           "description": "Show a non-blocking alert when a session exceeds this USD amount. Use whole dollars; set to 0 to disable."
         },
-        "kilo-code.new.fontSize": {
+        "bharatcode-agent.fontSize": {
           "type": "number",
           "default": 13,
           "minimum": 10,
           "maximum": 24,
           "description": "Font size in pixels for the BharatCode webview UI."
         },
-        "kilo-code.new.browserAutomation.enabled": {
+        "bharatcode-agent.browserAutomation.enabled": {
           "type": "boolean",
           "default": false,
           "description": "Enable browser automation powered by Playwright. When enabled, the AI agent can interact with web pages in a visible Chrome window."
         },
-        "kilo-code.new.browserAutomation.useSystemChrome": {
+        "bharatcode-agent.browserAutomation.useSystemChrome": {
           "type": "boolean",
           "default": true,
           "description": "Use your system's installed Chrome browser instead of downloading a separate Chromium instance."
         },
-        "kilo-code.new.browserAutomation.headless": {
+        "bharatcode-agent.browserAutomation.headless": {
           "type": "boolean",
           "default": false,
           "description": "Run browser automation in headless mode (no visible window). When disabled, you can watch the agent interact with the browser."
         },
-        "kilo-code.new.agentManager.browser.useSystemChrome": {
+        "bharatcode-agent.agentManager.browser.useSystemChrome": {
           "type": "boolean",
           "default": true,
           "scope": "application",
           "description": "Use system-installed Google Chrome for the Integrated Browser. Disable only when a compatible Playwright Chromium browser is already installed."
         },
-        "kilo-code.new.agentManager.browser.openLinksIn": {
+        "bharatcode-agent.agentManager.browser.openLinksIn": {
           "type": "string",
           "enum": [
             "external",
@@ -1086,22 +1085,22 @@
           "scope": "application",
           "description": "Choose where web links open from BharatCode chats. Requires the experimental Integrated Browser."
         },
-        "kilo-code.new.attention.enabled": {
+        "bharatcode-agent.attention.enabled": {
           "type": "boolean",
           "default": false,
           "description": "Play sounds when sessions complete, error, or need input"
         },
-        "kilo-code.new.attention.notifications": {
+        "bharatcode-agent.attention.notifications": {
           "type": "boolean",
           "default": false,
           "description": "Show VS Code notifications when BharatCode completes a task or needs input. Notifications are suppressed while a BharatCode panel is active."
         },
-        "kilo-code.new.attention.OSNotifications": {
+        "bharatcode-agent.attention.OSNotifications": {
           "type": "boolean",
           "default": false,
           "description": "Show native OS notification alerts when BharatCode completes a task or needs input while VS Code is not active."
         },
-        "kilo-code.new.attention.sound": {
+        "bharatcode-agent.attention.sound": {
           "type": "string",
           "default": "default",
           "enum": [
@@ -1155,37 +1154,37 @@
           ],
           "description": "Use different sounds for completion, input, and errors, or choose one sound for every event"
         },
-        "kilo-code.new.showTaskTimeline": {
+        "bharatcode-agent.showTaskTimeline": {
           "type": "boolean",
           "default": true,
           "description": "Show the task timeline graph in the chat header"
         },
-        "kilo-code.new.showShortcutHints": {
+        "bharatcode-agent.showShortcutHints": {
           "type": "boolean",
           "default": true,
           "description": "Show the keyboard shortcut that fits what you do now in the empty prompt, for example how to add selected code or return to the prompt."
         },
-        "kilo-code.new.showTokenThroughput": {
+        "bharatcode-agent.showTokenThroughput": {
           "type": "boolean",
           "default": true,
           "description": "Show tokens-per-second (prompt-processing / text-generation) badges on assistant messages and the task header"
         },
-        "kilo-code.new.showAutoApprovalReason": {
+        "bharatcode-agent.showAutoApprovalReason": {
           "type": "boolean",
           "default": true,
           "description": "Show a line on tool calls explaining why they were auto-approved (matched rule, agent default, YOLO mode, etc.)"
         },
-        "kilo-code.new.chat.shiftTabCyclesVariant": {
+        "bharatcode-agent.chat.shiftTabCyclesVariant": {
           "type": "boolean",
           "default": true,
           "description": "Cycle through reasoning effort variants with Shift+Tab in prompt inputs. Disable to keep Shift+Tab for keyboard focus navigation."
         },
-        "kilo-code.new.agentManager.pushFixes": {
+        "bharatcode-agent.agentManager.pushFixes": {
           "type": "boolean",
           "default": true,
           "description": "Agent Manager: when you send pull request CI failures or review comments to the agent, or update a worktree from its base, ask the agent to commit and push so the pull request updates. Permission prompts still apply. Disable to keep commits manual."
         },
-        "kilo-code.new.agentWorkStyle": {
+        "bharatcode-agent.agentWorkStyle": {
           "type": "string",
           "scope": "application",
           "default": "unset",
@@ -1203,12 +1202,12 @@
           ],
           "description": "Preferred agent work style. Set to Unset to show the onboarding flow again."
         },
-        "kilo-code.new.diff.renderMarkdown": {
+        "bharatcode-agent.diff.renderMarkdown": {
           "type": "boolean",
           "default": false,
           "description": "Render Markdown files in BharatCode diff viewers by default. Toggle this from a Markdown file header in the diff viewer."
         },
-        "kilo-code.new.diff.style": {
+        "bharatcode-agent.diff.style": {
           "type": "string",
           "enum": [
             "unified",

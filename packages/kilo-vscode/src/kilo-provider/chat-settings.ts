@@ -1,17 +1,16 @@
+import { configuration, affectsConfiguration } from "../configuration"
 import * as vscode from "vscode"
 import { integratedBrowserLinkDestination } from "../services/browser-automation/chrome-setting"
 
 type Post = (msg: unknown) => void
 
 export function buildChatSettingsMessage() {
-  const config = vscode.workspace.getConfiguration("kilo-code.new.chat")
+  const config = configuration("bharatcode-agent.chat")
   return {
     type: "chatSettingsLoaded" as const,
     settings: {
       shiftTabCyclesVariant: config.get<boolean>("shiftTabCyclesVariant", true),
-      browserAutomation: vscode.workspace
-        .getConfiguration("kilo-code.new.experimental")
-        .get("browserAutomation", false),
+      browserAutomation: configuration("bharatcode-agent.experimental").get("browserAutomation", false),
       agentManagerBrowserOpenLinksIn: integratedBrowserLinkDestination(),
       workspaceTrusted: vscode.workspace.isTrusted,
     },
@@ -19,7 +18,7 @@ export function buildChatSettingsMessage() {
 }
 
 export function buildTimelineSettingMessage() {
-  const config = vscode.workspace.getConfiguration("kilo-code.new")
+  const config = configuration("bharatcode-agent")
   return {
     type: "timelineSettingLoaded" as const,
     visible: config.get<boolean>("showTaskTimeline", true),
@@ -29,13 +28,13 @@ export function buildTimelineSettingMessage() {
 export function watchChatConfig(post: Post): vscode.Disposable {
   return vscode.workspace.onDidChangeConfiguration((event) => {
     if (
-      event.affectsConfiguration("kilo-code.new.chat") ||
-      event.affectsConfiguration("kilo-code.new.experimental.browserAutomation") ||
-      event.affectsConfiguration("kilo-code.new.agentManager.browser.openLinksIn")
+      affectsConfiguration(event, "bharatcode-agent.chat") ||
+      affectsConfiguration(event, "bharatcode-agent.experimental.browserAutomation") ||
+      affectsConfiguration(event, "bharatcode-agent.agentManager.browser.openLinksIn")
     ) {
       post(buildChatSettingsMessage())
     }
-    if (event.affectsConfiguration("kilo-code.new.showTaskTimeline")) {
+    if (affectsConfiguration(event, "bharatcode-agent.showTaskTimeline")) {
       post(buildTimelineSettingMessage())
     }
   })

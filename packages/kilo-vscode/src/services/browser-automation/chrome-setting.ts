@@ -1,7 +1,8 @@
+import { configuration } from "../../configuration"
 import * as vscode from "vscode"
 
-const INTEGRATED_BROWSER = "kilo-code.new.agentManager.browser"
-const BROWSER_AUTOMATION = "kilo-code.new.browserAutomation"
+const INTEGRATED_BROWSER = "bharatcode-agent.agentManager.browser"
+const BROWSER_AUTOMATION = "bharatcode-agent.browserAutomation"
 
 /**
  * Read the Chrome preference for the Agent Manager Integrated Browser.
@@ -11,19 +12,16 @@ const BROWSER_AUTOMATION = "kilo-code.new.browserAutomation"
  * stays independent.
  */
 export function integratedBrowserUseSystemChrome(): boolean {
-  return vscode.workspace.getConfiguration(INTEGRATED_BROWSER).get("useSystemChrome", true)
+  return configuration(INTEGRATED_BROWSER).get("useSystemChrome", true)
 }
 
 export function integratedBrowserFallback(remote = vscode.env.remoteName): boolean {
-  return (
-    remote === "wsl" &&
-    vscode.workspace.getConfiguration(INTEGRATED_BROWSER).inspect<boolean>("useSystemChrome")?.globalValue == null
-  )
+  return remote === "wsl" && configuration(INTEGRATED_BROWSER).inspect<boolean>("useSystemChrome")?.globalValue == null
 }
 
 /** Keep the settings payload and effective link destination in sync. */
 export function integratedBrowserLinkDestination() {
-  const value = vscode.workspace.getConfiguration(INTEGRATED_BROWSER).get<string>("openLinksIn", "integrated")
+  const value = configuration(INTEGRATED_BROWSER).get<string>("openLinksIn", "integrated")
   return value === "external" ? "external" : "integrated"
 }
 
@@ -37,9 +35,9 @@ export function integratedBrowserLinkDestination() {
  * the current key is application-scoped and cannot store them.
  */
 export async function migrateIntegratedBrowserUseSystemChrome(): Promise<void> {
-  const browser = vscode.workspace.getConfiguration(INTEGRATED_BROWSER)
+  const browser = configuration(INTEGRATED_BROWSER)
   if (browser.inspect?.<boolean>("useSystemChrome")?.globalValue !== undefined) return
-  const value = vscode.workspace.getConfiguration(BROWSER_AUTOMATION).inspect?.<boolean>("useSystemChrome")?.globalValue
+  const value = configuration(BROWSER_AUTOMATION).inspect?.<boolean>("useSystemChrome")?.globalValue
   if (value === undefined) return
   await browser.update("useSystemChrome", value, vscode.ConfigurationTarget.Global)
 }

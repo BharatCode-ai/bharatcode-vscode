@@ -259,7 +259,10 @@ describe("KiloProvider catalog refresh", () => {
     fail = true
     await internal.fetchAndSendProviders()
 
-    expect(messages.at(-1)).toEqual({ type: "providersLoading" })
+    expect(messages.at(-1)).toEqual({
+      type: "providersLoadFailed",
+      failure: { providerID: "bharatcode", kind: "network" },
+    })
     expect(messages.filter((message) => message.type === "providersLoaded")).toHaveLength(1)
     expect(internal.cachedProvidersMessage).toBeNull()
   })

@@ -1,8 +1,8 @@
-// Keep the existing command ID so older keybindings and the welcome view still work.
+// The command is isolated; the persisted sign-in flag remains unchanged.
 import * as vscode from "vscode"
 import type { KiloClient } from "@kilocode/sdk/v2/client"
 
-const SET_KEY_COMMAND = "kilo-code.new.setBharatcodeKey"
+const SET_KEY_COMMAND = "bharatcode-agent.setBharatcodeKey"
 const CONNECTED_FLAG = "bharatcode.apiKeySet"
 const SIGN_IN = "Sign in with BharatCode"
 
@@ -56,7 +56,7 @@ export function start(ctx: vscode.ExtensionContext, client: () => Promise<KiloCl
     await c.provider.oauth.callback(params, { throwOnError: true })
     await ctx.globalState.update(CONNECTED_FLAG, true).then(undefined, () => {})
     await c.global.dispose().catch(() => {})
-    void vscode.commands.executeCommand("kilo-code.SidebarProvider.focus")
+    void vscode.commands.executeCommand("bharatcode-agent.SidebarProvider.focus")
     void vscode.window.showInformationMessage("BharatCode connected.")
   }
 

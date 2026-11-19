@@ -111,6 +111,7 @@ export async function fetchProviderData(client: KiloClient, dir: string) {
     authStates,
     storedKeys,
     organizationId,
+    // Catalog completion is tracked separately from Kilo auth readiness in the webview.
     ready: !!kiloAuth,
     unavailable: catalogUnavailable(response.failed, all, organizationId),
   }

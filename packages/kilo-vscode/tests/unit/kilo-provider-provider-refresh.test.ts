@@ -14,6 +14,7 @@ type Internals = {
   refreshConfig: (type: "configLoaded" | "configUpdated", dir?: string) => Promise<void>
   initializeConnection: () => Promise<void>
   fetchAndSendProviders: () => Promise<void>
+  refreshBharatcodeCatalog: () => Promise<void>
   fetchAndSendIndexingStatus: (directory?: string, projectId?: string) => void
   flushPendingKiloModel: () => void
   checkConfigWarnings: (reason: string) => Promise<void>
@@ -89,6 +90,194 @@ function stub(internal: Internals) {
 }
 
 describe("KiloProvider providers on reconnect", () => {
+  it("coalesces explicit catalog retries without disposing sessions or replaying tools", async () => {
+    const gate = Promise.withResolvers<void>()
+    const messages: unknown[] = []
+    let refreshes = 0
+    let lists = 0
+    let disposals = 0
+    let prompts = 0
+    const internal = provider(
+      connection(true, {
+        provider: {
+          refresh: async (input: unknown) => {
+            expect(input).toEqual({ providerID: "bharatcode", directory: "/repo" })
+            refreshes++
+            await gate.promise
+            return { data: true }
+          },
+          list: async () => {
+            lists++
+            return {
+              data: {
+                all: [{ id: "bharatcode", models: { glm: { id: "glm" } } }],
+                connected: ["bharatcode"],
+                default: { bharatcode: "glm" },
+              },
+            }
+          },
+        },
+        kilo: { authStatus: async () => ({ data: undefined }) },
+        global: {
+          dispose: async () => {
+            disposals++
+          },
+        },
+        session: {
+          prompt: async () => {
+            prompts++
+          },
+        },
+      }),
+    )
+    stub(internal)
+    internal.webview = { postMessage: async (message) => messages.push(message) }
+    const first = internal.refreshBharatcodeCatalog()
+    const second = internal.refreshBharatcodeCatalog()
+    expect(first).toBe(second)
+    expect(refreshes).toBe(1)
+    gate.resolve()
+    await first
+    expect(lists).toBe(1)
+    expect(disposals).toBe(0)
+    expect(prompts).toBe(0)
+    expect(messages).toContainEqual({ type: "providersRefreshing" })
+    expect(messages).toContainEqual(
+      expect.objectContaining({ type: "providersLoaded", ready: false, connected: ["bharatcode"] }),
+    )
+  })
+
+  it("reports a sanitized retry error and releases the retry lock", async () => {
+    const messages: unknown[] = []
+    let attempts = 0
+    const internal = provider(
+      connection(true, {
+        provider: {
+          refresh: async () => {
+            attempts++
+            throw new Error("private-response-body")
+          },
+        },
+      }),
+    )
+    stub(internal)
+    internal.webview = { postMessage: async (message) => messages.push(message) }
+    await internal.refreshBharatcodeCatalog()
+    await internal.refreshBharatcodeCatalog()
+    expect(attempts).toBe(2)
+    expect(messages).toContainEqual({
+      type: "providersLoadFailed",
+      failure: { providerID: "bharatcode", kind: "network" },
+    })
+    expect(JSON.stringify(messages)).not.toContain("private-response-body")
+  })
+
+  for (const change of ["project", "directory", "client", "generation"] as const) {
+    it.each([true, false])(
+      `ignores a stale catalog retry after a ${change} change (rejected: %s)`,
+      async (rejected) => {
+        const gate = Promise.withResolvers<void>()
+        let directory = "/before"
+        const requests: string[] = []
+        const messages: unknown[] = []
+        const service = connection(true, {
+          provider: {
+            refresh: async () => gate.promise,
+            list: async (input: { directory: string }) => {
+              requests.push(input.directory)
+              return { data: { all: [], connected: [], default: {} } }
+            },
+          },
+          kilo: { authStatus: async () => ({ data: { authenticated: false } }) },
+        })
+        const internal = provider(service, () => directory)
+        stub(internal)
+        internal.webview = { postMessage: async (message) => messages.push(message) }
+        const pending = internal.refreshBharatcodeCatalog()
+        if (change === "project" || change === "directory") directory = "/after"
+        if (change === "project" || change === "generation") await internal.fetchAndSendProviders()
+        if (change === "client") service.getClient = () => ({}) as never
+        const published = [...messages]
+        const fetched = [...requests]
+        if (rejected) gate.reject(new Error("stale private error"))
+        else gate.resolve()
+        await pending
+
+        // Neither an old error nor an old success may replace/refetch the current catalog.
+        expect(messages).toEqual(published)
+        expect(requests).toEqual(fetched)
+        if (change === "project") {
+          expect(requests).toEqual(["/after"])
+          expect(messages.at(-1)).toEqual(expect.objectContaining({ type: "providersLoaded" }))
+        }
+      },
+    )
+  }
+
+  it("lets the active project retry while an obsolete retry is still pending", async () => {
+    const before = Promise.withResolvers<void>()
+    const after = Promise.withResolvers<void>()
+    let directory = "/before"
+    const requests: string[] = []
+    const messages: unknown[] = []
+    const internal = provider(
+      connection(true, {
+        provider: {
+          refresh: async (input: { directory: string }) => {
+            requests.push(input.directory)
+            await (input.directory === "/before" ? before.promise : after.promise)
+          },
+          list: async () => ({ data: { all: [], connected: [], default: {} } }),
+        },
+        kilo: { authStatus: async () => ({ data: { authenticated: false } }) },
+      }),
+      () => directory,
+    )
+    stub(internal)
+    internal.webview = { postMessage: async (message) => messages.push(message) }
+    const stale = internal.refreshBharatcodeCatalog()
+    directory = "/after"
+    const active = internal.refreshBharatcodeCatalog()
+    expect(active).not.toBe(stale)
+    expect(requests).toEqual(["/before", "/after"])
+    before.reject(new Error("obsolete project"))
+    await stale
+    expect(messages).not.toContainEqual(expect.objectContaining({ type: "providersLoadFailed" }))
+    expect(internal.refreshBharatcodeCatalog()).toBe(active)
+    after.resolve()
+    await active
+    expect(messages.at(-1)).toEqual(expect.objectContaining({ type: "providersLoaded" }))
+    expect(requests).toHaveLength(2)
+  })
+
+  it("keeps duplicate retries coalesced through the follow-up provider list", async () => {
+    const started = Promise.withResolvers<void>()
+    const gate = Promise.withResolvers<void>()
+    let refreshes = 0
+    const internal = provider(
+      connection(true, {
+        provider: {
+          refresh: async () => {
+            refreshes++
+          },
+          list: async () => {
+            started.resolve()
+            await gate.promise
+            return { data: { all: [], connected: [], default: {} } }
+          },
+        },
+        kilo: { authStatus: async () => ({ data: { authenticated: false } }) },
+      }),
+    )
+    stub(internal)
+    const pending = internal.refreshBharatcodeCatalog()
+    await started.promise
+    expect(internal.refreshBharatcodeCatalog()).toBe(pending)
+    expect(refreshes).toBe(1)
+    gate.resolve()
+    await pending
+  })
+
   it("recovers providers against the selected project without reconnecting", async () => {
     let dir = "/unavailable"
     const requests: string[] = []

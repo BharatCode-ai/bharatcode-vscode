@@ -55,6 +55,20 @@ export const ProviderApi = HttpApi.make("provider")
             description: "Retrieve available authentication methods for all AI providers.",
           }),
         ),
+        // kilocode_change start - catalog-only retry without disposing running sessions
+        HttpApiEndpoint.post("refresh", `${root}/:providerID/refresh`, {
+          params: { providerID: ProviderV2.ID },
+          query: WorkspaceRoutingQuery,
+          success: described(Schema.Boolean, "Whether the provider catalog refreshed successfully"),
+        }).annotateMerge(
+          OpenApi.annotations({
+            identifier: "provider.refresh",
+            summary: "Refresh a provider catalog",
+            description:
+              "Retry the BharatCode model catalog without interrupting sessions. Returns false on failure, cooldown, or an unsupported or disabled provider.",
+          }),
+        ),
+        // kilocode_change end
         HttpApiEndpoint.post("authorize", `${root}/:providerID/oauth/authorize`, {
           params: { providerID: ProviderV2.ID },
           query: WorkspaceRoutingQuery,

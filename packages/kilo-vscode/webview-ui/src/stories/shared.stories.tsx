@@ -8,7 +8,7 @@ import type { Meta, StoryObj } from "storybook-solidjs-vite"
 import { StoryProviders, mockSessionValue } from "./StoryProviders"
 import { ModelSelectorBase } from "../components/shared/ModelSelector"
 import { SessionContext } from "../context/session"
-import type { EnrichedModel } from "../context/provider"
+import { ProviderProvider, type EnrichedModel } from "../context/provider"
 import type { ModelSelection } from "../types/messages"
 import { Markdown } from "@kilocode/kilo-ui/markdown"
 
@@ -55,6 +55,17 @@ export const ModelSelectorNoProviders: Story = {
           placement="bottom-start"
         />
       </div>
+    </StoryProviders>
+  ),
+}
+
+export const ModelSelectorBharatcodeRecovery: Story = {
+  name: "ModelSelector — BharatCode catalog recovery",
+  render: () => (
+    <StoryProviders>
+      <ProviderProvider>
+        <ModelSelectorBase value={null} onSelect={() => {}} placement="bottom-start" collapsed />
+      </ProviderProvider>
     </StoryProviders>
   ),
 }

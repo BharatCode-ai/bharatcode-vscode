@@ -450,14 +450,14 @@ describe("attention defaults", () => {
     }
     const properties = manifest.contributes.configuration.properties
 
-    expect(properties["kilo-code.new.attention.enabled"]?.default).toBe(false)
-    expect(properties["kilo-code.new.attention.notifications"]?.default).toBe(false)
-    expect(properties["kilo-code.new.attention.OSNotifications"]?.default).toBe(false)
-    expect(properties["kilo-code.new.attention.sound"]?.default).toBe("default")
-    expect(properties["kilo-code.new.attention.sound"]?.enum).toEqual(["default", "system", ...CustomSoundIDs])
-    expect(properties["kilo-code.new.sounds.agentEnabled"]).toBeUndefined()
-    expect(properties["kilo-code.new.sounds.permissionsEnabled"]).toBeUndefined()
-    expect(properties["kilo-code.new.sounds.errorsEnabled"]).toBeUndefined()
+    expect(properties["bharatcode-agent.attention.enabled"]?.default).toBe(false)
+    expect(properties["bharatcode-agent.attention.notifications"]?.default).toBe(false)
+    expect(properties["bharatcode-agent.attention.OSNotifications"]?.default).toBe(false)
+    expect(properties["bharatcode-agent.attention.sound"]?.default).toBe("default")
+    expect(properties["bharatcode-agent.attention.sound"]?.enum).toEqual(["default", "system", ...CustomSoundIDs])
+    expect(properties["bharatcode-agent.sounds.agentEnabled"]).toBeUndefined()
+    expect(properties["bharatcode-agent.sounds.permissionsEnabled"]).toBeUndefined()
+    expect(properties["bharatcode-agent.sounds.errorsEnabled"]).toBeUndefined()
   })
 
   it("resolves global sound choices safely", () => {

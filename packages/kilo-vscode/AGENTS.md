@@ -224,8 +224,10 @@ Generated screenshot baselines live under `packages/kilo-docs/public/img/screens
 
 ## Naming Conventions
 
-- All VSCode commands must use `kilo-code.new.` prefix (not `kilo-code.`)
-- All view IDs must use `kilo-code.new.` prefix, **except** the sidebar view which uses `kilo-code.SidebarProvider` to preserve user sidebar position when upgrading from the legacy extension
+- All VS Code commands, views, panels, context keys, menus, task types and contributed settings use the unique `bharatcode-agent.` prefix. Do not register legacy aliases: Kilo and other forks can be installed alongside BharatCode Agent.
+- Keep publisher `bharatcode`, package name `bharatcode-agent`, and extension ID `bharatcode.bharatcode-agent` unchanged for updates and access to existing extension storage/secrets.
+- Read settings through `src/configuration.ts`. On activation it copies explicit `kilo-code.new.*` values into the new namespace at their original scopes, without deleting old values or overwriting new preferences. Failed copies retain a read fallback; completed scopes are marked so resetting a new preference cannot resurrect legacy values.
+- This isolation intentionally replaces the old sidebar-ID exception: saved sidebar placement and custom shortcuts targeting old command IDs may need reassigning. Never rename existing global/workspace state keys, backend `KILO_*` variables, auth stores, or project/chat paths as part of UI namespace changes.
 
 ## Kilocode Change Markers
 

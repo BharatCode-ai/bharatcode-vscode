@@ -15,6 +15,7 @@ import {
 } from "@/kilocode/server/provider-auth-lifecycle" // kilocode_change
 import { providerMetadata } from "@/kilocode/provider/metadata" // kilocode_change
 import { filterPromptTrainingModels } from "@/kilocode/provider/model-filter" // kilocode_change
+import { refresh as refreshCatalog } from "@/kilocode/provider/catalog-refresh" // kilocode_change
 import { overlay as overlayAnacondaDesktop } from "@/kilocode/anaconda-desktop/provider" // kilocode_change
 import { Effect, Schema } from "effect"
 import { HttpServerRequest, HttpServerResponse } from "effect/unstable/http"
@@ -189,8 +190,14 @@ export const providerHandlers = HttpApiBuilder.group(InstanceHttpApi, "provider"
       return true
     })
 
+    // kilocode_change start
+    const refresh = (ctx: { params: { providerID: ProviderV2.ID } }) =>
+      cfg.get().pipe(Effect.flatMap((config) => refreshCatalog(cache, config, ctx.params.providerID)))
+    // kilocode_change end
+
     return handlers
       .handle("list", list)
+      .handle("refresh", refresh) // kilocode_change
       .handle("auth", auth)
       .handleRaw("authorize", authorizeRaw)
       .handle("callback", callback)

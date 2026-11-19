@@ -1,11 +1,13 @@
 // kilocode_change - new file
 import { fetchKiloModels, type KiloModelsResult } from "@kilocode/kilo-gateway"
-import { Context, Deferred, Duration, Effect, Exit, Fiber, Layer, Schema, Scope } from "effect"
+import { Clock, Context, Deferred, Duration, Effect, Exit, Fiber, Layer, Schema, Scope } from "effect"
 import { FetchHttpClient, HttpClient, HttpClientRequest, HttpClientResponse } from "effect/unstable/http"
 import { Config } from "../config/config"
 import { Auth } from "../auth"
 import { compatible, organization, token } from "@/kilocode/provider/catalog"
 import { delay, retryable } from "@/kilocode/provider/catalog-recovery"
+import * as BharatcodeCatalog from "@/kilocode/provider/bharatcode-catalog"
+import { fetch as fetchBharatcodeCatalog } from "@/kilocode/provider/bharatcode-catalog-http"
 import * as ModelsRefresh from "@opencode-ai/core/kilocode/models-refresh"
 import type { Provider } from "@opencode-ai/core/models-dev"
 import * as Log from "@opencode-ai/core/util/log"
@@ -16,9 +18,9 @@ import { httpClient } from "@opencode-ai/core/effect/app-node-platform" // kiloc
 type Models = Provider["models"]
 type Modalities = NonNullable<Models[string]["modalities"]>
 type KiloOptions = NonNullable<Parameters<typeof fetchKiloModels>[0]>
-type Options = { -readonly [K in keyof KiloOptions]?: KiloOptions[K] } & { apiKey?: string }
+type Options = { -readonly [K in keyof KiloOptions]?: KiloOptions[K] } & BharatcodeCatalog.Options
 type Failure = NonNullable<KiloModelsResult["error"]>
-type Result = { readonly models: Models; readonly error?: Failure }
+type Result = BharatcodeCatalog.Result
 type View = { models?: Models; timestamp?: number; empty?: boolean }
 type Flight = { readonly done: Deferred.Deferred<Result, unknown>; version: number }
 
@@ -37,7 +39,10 @@ export const kiloModelsLayer = Layer.succeed(
 type Cell = {
   readonly providerID: string
   readonly options: Options
+  readonly input: Options
   readonly view: View
+  attempts?: number
+  retryAt?: number
   cached?: { readonly result: Result; readonly expires: number }
   flight?: Flight
   recovery?: Fiber.Fiber<void>
@@ -57,7 +62,6 @@ export class Service extends Context.Service<Service, Interface>()("@kilocode/Mo
 const log = Log.create({ service: "model-cache" })
 const ttl = Duration.minutes(5)
 const APERTIS_BASE_URL = "https://api.apertis.ai/v1"
-const BHARATCODE_BASE_URL = "https://bharatcode.ai/api/model/v1"
 // OpenAI GET /models item shape. Optional extras are read by BharatCode's richer
 // response (display_name/context_window/metadata); apertis items without them
 // fall back to the legacy defaults in aperture().
@@ -125,8 +129,7 @@ export const layer: Layer.Layer<
 
     const fetchApertisModels = Effect.fn("ModelCache.fetchApertisModels")(function* (options: Options) {
       const baseURL = options.baseURL ?? APERTIS_BASE_URL
-      // bharatcode.ai serves GET /models without auth; apertis requires a key.
-      const anon = baseURL === BHARATCODE_BASE_URL
+      const anon = baseURL === BharatcodeCatalog.baseURL
       if (!options.apiKey && !anon) {
         log.debug("no API key for apertis, skipping model fetch")
         return {}
@@ -188,6 +191,9 @@ export const layer: Layer.Layer<
 
         const info = yield* auth.get(providerID)
         if (info?.type === "api") options.apiKey = info.key
+        // The catalog is public. Scope OAuth caches to the account without sending
+        // its bearer token to an arbitrary configured catalog endpoint.
+        if (info?.type === "oauth") options.catalogAccount = info.access
         if (process.env.BHARATCODE_API_KEY) options.apiKey = process.env.BHARATCODE_API_KEY
         log.debug("bharatcode auth options resolved", {
           providerID,
@@ -201,12 +207,7 @@ export const layer: Layer.Layer<
 
     const fetchModels = (providerID: string, options: Options): Effect.Effect<Result, unknown> => {
       if (providerID === "kilo") return kilo.fetch(options)
-      // ponytail: fetchApertisModels is really a generic OpenAI GET /models client
-      // (Bearer + {data:[...]}); renamed scope would touch apertis tests too.
-      if (providerID === "bharatcode")
-        return fetchApertisModels({ ...options, baseURL: options.baseURL ?? BHARATCODE_BASE_URL }).pipe(
-          Effect.map((models) => ({ models })),
-        )
+      if (providerID === "bharatcode") return fetchBharatcodeCatalog(http, options)
       if (providerID === "apertis") return fetchApertisModels(options).pipe(Effect.map((models) => ({ models })))
       log.debug("provider not implemented", { providerID })
       return Effect.succeed({ models: {} })
@@ -218,6 +219,9 @@ export const layer: Layer.Layer<
     })
 
     const resolve = Effect.fn("ModelCache.resolve")(function* (providerID: string, options: Options) {
+      // Never silently replace a failed account/config lookup with anonymous
+      // default-endpoint credentials for BharatCode.
+      if (providerID === "bharatcode") return { ...(yield* authOptions(providerID)), ...options }
       const resolved = yield* authOptions(providerID).pipe(
         Effect.catchCause((cause) =>
           Effect.sync(() => {
@@ -234,6 +238,7 @@ export const layer: Layer.Layer<
         return JSON.stringify([providerID, options?.baseURL, options?.kilocodeOrganizationId, options?.kilocodeToken])
       }
       if (providerID === "apertis") return JSON.stringify([providerID, options?.baseURL, options?.apiKey])
+      if (providerID === "bharatcode") return `${providerID}:${BharatcodeCatalog.key(options ?? {})}`
       return providerID
     }
 
@@ -243,7 +248,7 @@ export const layer: Layer.Layer<
       const existing = cells.get(id)
       if (existing) return existing
       const view: View = {}
-      const next: Cell = { providerID, options: input, view }
+      const next: Cell = { providerID, options: input, input: options, view }
       cells.set(id, next)
       return next
     })
@@ -263,16 +268,31 @@ export const layer: Layer.Layer<
         ),
       )
 
-    const commit = (providerID: string, version: number, entry: Cell, result: Result) =>
+    const commit = (providerID: string, version: number | (() => number), entry: Cell, result: Result) =>
       Effect.gen(function* () {
-        if ((versions.get(providerID) ?? 0) !== version) return result.models
+        if (providerID === "bharatcode") {
+          const current = yield* resolve(providerID, entry.input).pipe(Effect.catch(() => Effect.succeed(undefined)))
+          if (!current || key(providerID, current) !== key(providerID, entry.options)) {
+            if (active.get(providerID) === entry) active.delete(providerID)
+            if (selected.get(providerID) === entry) failures.delete(providerID)
+            return result.models
+          }
+          if (selected.get(providerID) !== entry) return result.models
+        }
+        if ((versions.get(providerID) ?? 0) !== (typeof version === "function" ? version() : version))
+          return result.models
         const empty = Object.keys(result.models).length === 0
-        const recovered = providerID === "kilo" && entry.view.empty && !empty && !result.error
+        const recovered =
+          providerID === "bharatcode"
+            ? (!result.error && !empty && failures.has(providerID)) ||
+              (entry.view.models != null && JSON.stringify(entry.view.models) !== JSON.stringify(result.models))
+            : providerID === "kilo" && entry.view.empty && !empty && !result.error
         if (result.error) {
           failures.set(providerID, result.error)
           log.warn("model fetch error", { providerID, error: result.error })
         } else {
           failures.delete(providerID)
+          if (providerID === "bharatcode") entry.attempts = 0
         }
         entry.view.models = result.models
         entry.view.timestamp = Date.now()
@@ -305,13 +325,26 @@ export const layer: Layer.Layer<
           entry.flight = flight
           yield* Effect.uninterruptibleMask((restore) =>
             Effect.gen(function* () {
-              const exit = yield* restore(load(entry.providerID, entry.options)).pipe(Effect.exit)
+              const exit = yield* restore(load(entry.providerID, entry.options)).pipe(
+                Effect.map((result) =>
+                  entry.providerID === "bharatcode" ? BharatcodeCatalog.retain(result, entry.view.models) : result,
+                ),
+                Effect.exit,
+              )
               if (entry.flight === flight) {
-                entry.flight = undefined
+                if (entry.providerID !== "bharatcode") entry.flight = undefined
                 if (Exit.isSuccess(exit)) {
                   entry.cached = { result: exit.value, expires: Date.now() + Duration.toMillis(ttl) }
-                  yield* commit(entry.providerID, flight.version, entry, exit.value)
+                  if (entry.providerID === "bharatcode")
+                    entry.retryAt = (yield* Clock.currentTimeMillis) + (exit.value.error?.retryAfter ?? 0) * 1000
+                  yield* commit(
+                    entry.providerID,
+                    entry.providerID === "bharatcode" ? () => flight.version : flight.version,
+                    entry,
+                    exit.value,
+                  )
                 }
+                if (entry.providerID === "bharatcode" && entry.flight === flight) entry.flight = undefined
               }
               yield* Deferred.done(done, exit)
               if (Exit.isSuccess(exit)) yield* recover(entry, exit.value)
@@ -329,9 +362,12 @@ export const layer: Layer.Layer<
       }
 
       const age = Date.now() - entry.view.timestamp
-      if (age > Duration.toMillis(ttl)) {
+      if (
+        age > Duration.toMillis(ttl) &&
+        !(providerID === "bharatcode" && (entry.retryAt ?? 0) > (yield* Clock.currentTimeMillis))
+      ) {
         log.debug("cache expired", { providerID, age })
-        entry.view.models = undefined
+        if (providerID !== "bharatcode") entry.view.models = undefined
         entry.view.timestamp = undefined
         yield* invalidate(entry)
         return
@@ -343,6 +379,10 @@ export const layer: Layer.Layer<
 
     const fetch = Effect.fn("ModelCache.fetch")(function* (providerID: string, options?: Options) {
       const entry = yield* cell(providerID, options)
+      if (providerID === "bharatcode" && selected.get(providerID) !== entry) {
+        active.delete(providerID)
+        failures.delete(providerID)
+      }
       selected.set(providerID, entry)
       const cached = active.get(providerID) === entry ? yield* get(providerID) : undefined
       if (cached) {
@@ -353,36 +393,74 @@ export const layer: Layer.Layer<
       versions.set(providerID, version)
       log.info("fetching models", { providerID })
       const result = yield* evaluate(entry, version)
+      if (providerID === "bharatcode" && active.get(providerID) !== entry) return {}
       return result.models
     })
 
     const refresh = Effect.fn("ModelCache.refresh")(function* (providerID: string, options?: Options) {
+      const resolved = providerID === "bharatcode" ? yield* cell(providerID, options) : undefined
       const version = (versions.get(providerID) ?? 0) + 1
       versions.set(providerID, version)
-      const entry = yield* cell(providerID, options)
+      const entry = resolved ?? (yield* cell(providerID, options))
+      if (providerID === "bharatcode" && selected.get(providerID) !== entry) {
+        active.delete(providerID)
+        failures.delete(providerID)
+      }
       selected.set(providerID, entry)
+      if (providerID === "bharatcode") {
+        // Repeated clicks coalesce with the flight, and cannot bypass Retry-After.
+        if (entry.cached && (entry.retryAt ?? 0) > (yield* Clock.currentTimeMillis)) {
+          yield* commit(providerID, version, entry, entry.cached.result)
+          yield* recover(entry, entry.cached.result)
+          return entry.cached.result.models
+        }
+        if (!entry.flight && !entry.recovery) entry.attempts = 0
+      }
       log.info("refreshing models", { providerID })
       yield* invalidate(entry)
       const result = yield* evaluate(entry, version)
+      if (providerID === "bharatcode" && active.get(providerID) !== entry) return {}
       return result.models
     })
 
     const recover = Effect.fn("ModelCache.recover")(function* (entry: Cell, result: Result) {
       if (
-        entry.providerID !== "kilo" ||
+        (entry.providerID !== "kilo" && entry.providerID !== "bharatcode") ||
         selected.get(entry.providerID) !== entry ||
         active.get(entry.providerID) !== entry ||
         entry.recovery ||
-        !retryable(result)
+        !(entry.providerID === "bharatcode" ? BharatcodeCatalog.retryable(result) : retryable(result))
       )
         return
       entry.recovery = yield* Effect.gen(function* () {
         let next = result
         for (let attempt = 0; ; attempt++) {
-          yield* Effect.sleep(Duration.seconds(delay(next, attempt)))
+          const seconds =
+            entry.providerID === "bharatcode"
+              ? BharatcodeCatalog.delay(next, entry.attempts ?? 0)
+              : delay(next, attempt)
+          if (seconds === undefined) return
+          yield* Effect.sleep(Duration.seconds(seconds))
           // A newer account or endpoint must not be replaced by this retry.
           if (selected.get(entry.providerID) !== entry || active.get(entry.providerID) !== entry) return
-          if (entry.cached && !retryable(entry.cached.result)) return
+          if (entry.providerID === "bharatcode") {
+            const current = yield* resolve(entry.providerID, entry.input).pipe(
+              Effect.catch(() => Effect.succeed(undefined)),
+            )
+            if (!current || key(entry.providerID, current) !== key(entry.providerID, entry.options)) return
+            if (entry.cached && !BharatcodeCatalog.retryable(entry.cached.result)) return
+            // A manual request can extend Retry-After while this fiber sleeps.
+            const remaining = (entry.retryAt ?? 0) - (yield* Clock.currentTimeMillis)
+            if (remaining > 0) yield* Effect.sleep(Duration.millis(remaining))
+            if (selected.get(entry.providerID) !== entry || active.get(entry.providerID) !== entry) return
+            const latest = yield* resolve(entry.providerID, entry.input).pipe(
+              Effect.catch(() => Effect.succeed(undefined)),
+            )
+            if (!latest || key(entry.providerID, latest) !== key(entry.providerID, entry.options)) return
+            if (entry.cached && !BharatcodeCatalog.retryable(entry.cached.result)) return
+            entry.attempts = (entry.attempts ?? 0) + 1
+          }
+          if (entry.providerID !== "bharatcode" && entry.cached && !retryable(entry.cached.result)) return
           yield* invalidate(entry)
           const version = (versions.get(entry.providerID) ?? 0) + 1
           versions.set(entry.providerID, version)
@@ -391,7 +469,12 @@ export const layer: Layer.Layer<
           const value = yield* evaluate(entry, version).pipe(
             Effect.catch((error) =>
               Effect.sync(() => {
-                log.error("catalog recovery failed", { providerID: entry.providerID, error })
+                log.error(
+                  "catalog recovery failed",
+                  entry.providerID === "bharatcode"
+                    ? { providerID: entry.providerID }
+                    : { providerID: entry.providerID, error },
+                )
                 return undefined
               }),
             ),
@@ -399,7 +482,7 @@ export const layer: Layer.Layer<
           if (!value) return
           next = value
           if (selected.get(entry.providerID) !== entry || active.get(entry.providerID) !== entry) return
-          if (retryable(next)) continue
+          if (entry.providerID === "bharatcode" ? BharatcodeCatalog.retryable(next) : retryable(next)) continue
           return
         }
       }).pipe(Effect.ensuring(Effect.sync(() => (entry.recovery = undefined))), Effect.forkIn(scope))
